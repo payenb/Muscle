@@ -21,7 +21,7 @@
     <Title>Muscle</Title>
     <Company>Université catholique de Louvain (UCLouvain)</Company>
     <Description>Muscle is a Grasshopper plugin for structural analysis that focuses on the design, analysis, and optimization of tensegrity, tension-based, and truss-like structures.</Description>
-    <ApplicationManifest>C:\Users\Jonas\Documents\GitHub\Muscle\manifest.yml</ApplicationManifest>
+    <ApplicationManifest>..\..\manifest.yml</ApplicationManifest>
     <RepositoryUrl>https://github.com/JonasFeron/Muscle</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright (C) &lt;2015-2025&gt; &lt;Université catholique de Louvain (UCLouvain)&gt;</Copyright>
