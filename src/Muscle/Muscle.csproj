@@ -11,6 +11,9 @@
      <TargetFrameworks>net48</TargetFrameworks>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <TargetExt>.gha</TargetExt>
+    <!-- Distinct output filename so this fork's .gha doesn't overwrite (or get overwritten by)
+         the official Muscle.gha when both are copied into the same Grasshopper Libraries folder. -->
+    <AssemblyName>Muscle2</AssemblyName>
     <NoWarn>NU1701;NETSDK1086</NoWarn>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>

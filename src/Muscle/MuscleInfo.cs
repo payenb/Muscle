@@ -51,18 +51,20 @@ namespace Muscle
 {
     public class MuscleInfo : GH_AssemblyInfo
     {
-        public override string Name => "Muscle";
+        public override string Name => "Muscle 2.0";
 
         //Return a 24x24 pixel bitmap to represent this GHA library.
         public override Bitmap Icon => null;
 
         //Return a short string describing the purpose of this GHA library.
-        public override string Description => "Muscle is a Grasshopper plugin for structural analysis that focuses on the design, analysis, and optimization of tensegrity, tension-based, and truss-like structures.";
+        public override string Description => "Muscle 2.0 is a fork of Muscle, a Grasshopper plugin for structural analysis that focuses on the design, analysis, and optimization of tensegrity, tension-based, and truss-like structures. This fork adds new computation methods (e.g. stiffness reduction due to strut geometric imperfections) developed as part of Basile Payen's PhD research.";
 
-        public override Guid Id => new Guid("f8029d34-993d-4dcb-bf79-9afcd328578d");
+        // Distinct from the official Muscle plugin's Id (f8029d34-993d-4dcb-bf79-9afcd328578d), so both
+        // can be loaded side by side in Grasshopper without an assembly GUID collision.
+        public override Guid Id => new Guid("080da54a-04ca-4515-bbed-f660ad2c4b92");
 
         //Return a string identifying you or your company.
-        public override string AuthorName => "Jonas FERON - Université catholique de Louvain (UCLouvain)";
+        public override string AuthorName => "Basile PAYEN - Université catholique de Louvain (UCLouvain)";
 
         //Return a string representing your preferred contact details.
         public override string AuthorContact => "pierre.latteur@uclouvain.be";
