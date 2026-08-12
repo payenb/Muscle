@@ -129,7 +129,7 @@ namespace Muscle.Components.PythonNETInit
             }
             catch (Exception ex)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, ex.Message);
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, FormatExceptionChain(ex));
                 return;
             }
             
@@ -182,7 +182,7 @@ namespace Muscle.Components.PythonNETInit
                 }
                 catch (Exception ex)
                 {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, ex.Message);
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, FormatExceptionChain(ex));
                 }
             }
 
@@ -194,7 +194,7 @@ namespace Muscle.Components.PythonNETInit
                 }
                 catch (Exception ex)
                 {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, ex.Message);
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, FormatExceptionChain(ex));
                 }
             }
             if (!PythonNET.IsInitialized)
@@ -212,6 +212,22 @@ namespace Muscle.Components.PythonNETInit
         private void DocumentClose(GH_DocumentServer sender, GH_Document doc)
         {
             PythonNET.ShutDown();
+        }
+
+        /// <summary>
+        /// Builds a single message from an exception and all of its InnerException(s).
+        /// Wrapper exceptions here (e.g. "Failed to import musclepy from C#") otherwise hide
+        /// the actual underlying error (e.g. the real Python ImportError/traceback) from the
+        /// user, since Grasshopper's runtime message only ever shows what is passed to it.
+        /// </summary>
+        private static string FormatExceptionChain(Exception ex)
+        {
+            var messages = new System.Collections.Generic.List<string>();
+            for (var current = ex; current != null; current = current.InnerException)
+            {
+                messages.Add(current.Message);
+            }
+            return string.Join(" -> ", messages);
         }
 
 
