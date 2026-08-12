@@ -67,7 +67,7 @@ namespace Muscle.Components.StaticLoading
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("1a42d0b0-af1f-4654-8a01-f8f1e3f3b690"); }
+            get { return new Guid("d7f9a710-a013-4a1e-a712-0211bcdfec8c"); }
         }
 
         /// <summary>

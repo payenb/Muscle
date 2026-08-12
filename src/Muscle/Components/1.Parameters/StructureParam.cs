@@ -38,7 +38,7 @@ namespace Muscle.Components.Param
         #region Constructors
 
         public TrussParam() : base("Structure", "struct", "Contains a collection of structures",  GHAssemblyName, Folder1_Param) { }
-        public override Guid ComponentGuid { get { return new Guid("b067bf72-c0f6-41e8-bb20-a3f4836f2e5a"); } }
+        public override Guid ComponentGuid { get { return new Guid("c62543bb-9fcf-4283-a0f2-7138c4402f25"); } }
 
 
         #endregion Constructors

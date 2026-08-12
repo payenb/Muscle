@@ -32,7 +32,7 @@ namespace Muscle.Components.Dynamic
     {
         #region Properties
 
-        public override Guid ComponentGuid { get { return new Guid("f205aef9-149d-445e-b6c7-c49dda7f46f0"); } }
+        public override Guid ComponentGuid { get { return new Guid("89bdc53d-2aa2-414e-9567-08212f232b3c"); } }
 
         #endregion Properties
 

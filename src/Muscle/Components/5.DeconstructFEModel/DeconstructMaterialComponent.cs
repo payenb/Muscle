@@ -48,7 +48,7 @@ namespace Muscle.Components.DeconstructFEModel
         /// <summary>
         /// This is the Global Unique IDentifier (GUID) of the component. It's a unique value that allow to identify the component as itself. DO NOT change it.
         /// </summary>
-        public override Guid ComponentGuid { get { return new Guid("fdfb5faf-64ac-436b-ab95-f437685aadc1"); } }
+        public override Guid ComponentGuid { get { return new Guid("49e788cb-09d7-4cf2-b403-54348087b14f"); } }
         #endregion Constructors
 
         #region Methods

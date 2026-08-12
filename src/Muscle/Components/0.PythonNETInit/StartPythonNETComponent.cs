@@ -285,7 +285,7 @@ namespace Muscle.Components.PythonNETInit
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("c3825588-91bb-4834-a65b-a497f5cf9a3b"); }
+            get { return new Guid("0cd80ca7-46c4-4dbc-889a-c5ae84910178"); }
         }
 
 

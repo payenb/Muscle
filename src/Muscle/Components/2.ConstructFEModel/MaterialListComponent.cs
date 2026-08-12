@@ -59,7 +59,7 @@ namespace Muscle.Components.CreateModel
         /// <summary>
         /// This is the Global Unique IDentifier (GUID) of the component. It's a unique value that allow to identify the component as itself. DO NOT change it.
         /// </summary>
-        public override Guid ComponentGuid { get { return new Guid("c727b5da-b361-4955-bdbb-248f6206f9d4"); } }
+        public override Guid ComponentGuid { get { return new Guid("a580fe33-2ff2-49ff-a07f-df74587dd3f7"); } }
 
 
 

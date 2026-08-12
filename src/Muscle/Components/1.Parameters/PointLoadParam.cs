@@ -38,7 +38,7 @@ namespace Muscle.Components.Param
         #region Constructors
 
         public PointLoadParam() : base("Point Load", "Load", "Contains a collection of point loads",  GHAssemblyName, Folder1_Param) { }
-        public override Guid ComponentGuid { get { return new Guid("e214aac1-ec39-4c8b-800e-d38193bdc5e6"); } }
+        public override Guid ComponentGuid { get { return new Guid("fc044630-25bd-424d-9e26-01940c7afa70"); } }
 
 
         #endregion Constructors

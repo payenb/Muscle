@@ -38,7 +38,7 @@ namespace Muscle.Components.Param
         #region Constructors
 
         public CrossSectionParam() : base("Cross Section", "CS", "Contains a collection of cross sections", GHAssemblyName, Folder1_Param) { }
-        public override Guid ComponentGuid { get { return new Guid("96b876dc-49b2-43c4-97d8-f200720e57a2"); } }
+        public override Guid ComponentGuid { get { return new Guid("48cc1792-06d7-46dd-98e6-360c50573210"); } }
 
 
         #endregion Constructors

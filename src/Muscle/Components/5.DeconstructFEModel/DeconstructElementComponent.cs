@@ -108,7 +108,7 @@ namespace Muscle.Components.DeconstructFEModel
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("ac280579-ab96-4422-8c3c-00b88a4b6c2c"); }
+            get { return new Guid("86240e5b-72d6-4323-b302-703333b11e78"); }
         }
     }
 }

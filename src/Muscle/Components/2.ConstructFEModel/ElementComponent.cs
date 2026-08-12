@@ -43,7 +43,7 @@ namespace Muscle.Components.ConstructFEModel
         }
         #region Properties
 
-        public override Guid ComponentGuid { get { return new Guid("6ed9ee2a-591e-42bb-973a-d239316c60fa"); } }
+        public override Guid ComponentGuid { get { return new Guid("aa246ec0-52ae-4bed-a6e1-2ea1b8ebab4c"); } }
 
         public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
         {

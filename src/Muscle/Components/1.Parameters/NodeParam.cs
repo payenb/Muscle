@@ -38,7 +38,7 @@ namespace Muscle.Components.Param
         #region Constructors
 
         public NodeParam() : base("Node", "N", "Contains a collection of nodes",  GHAssemblyName, Folder1_Param) { }
-        public override Guid ComponentGuid { get { return new Guid("9568793f-1347-46d6-a3c7-10c4530906a9"); } }
+        public override Guid ComponentGuid { get { return new Guid("43e5a6b6-2994-4aa5-b695-bca88bb512b5"); } }
 
 
         #endregion Constructors

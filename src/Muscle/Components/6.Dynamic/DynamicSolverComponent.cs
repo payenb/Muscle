@@ -105,7 +105,7 @@ namespace Muscle.Components.Dynamic
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("7d6853e4-ea1b-43e6-b66e-9ef122987812"); }
+            get { return new Guid("c38d41c8-099f-4215-ade0-e381e6cc471d"); }
         }
 
         /// <summary>

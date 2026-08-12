@@ -50,7 +50,7 @@ namespace Muscle.Components.Param
                 return Bbox;
             }
         }
-        public override Guid ComponentGuid { get { return new Guid("cafa0cb0-b40c-493d-87e3-cce41331ba71"); } }
+        public override Guid ComponentGuid { get { return new Guid("afd0f80e-3340-49f3-9129-647f244b9dc0"); } }
         public bool Hidden { get; set; }
         public bool IsPreviewCapable { get { return true; } }
         protected override Bitmap Icon { get { return null; } }

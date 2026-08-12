@@ -33,7 +33,7 @@ namespace Muscle.Components.ConstructFEModel
 
         #region Properties
 
-        public override Guid ComponentGuid { get { return new Guid("c02e6a93-c786-400e-a3da-c1d3412fdefa"); } }
+        public override Guid ComponentGuid { get { return new Guid("37d00d6a-89d6-442f-a9b9-3cd108cacf67"); } }
 
         #endregion Properties
 

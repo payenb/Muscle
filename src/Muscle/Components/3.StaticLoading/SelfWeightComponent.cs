@@ -34,7 +34,7 @@ namespace Muscle.Components.StaticLoading
     {
         #region Properties
 
-        public override Guid ComponentGuid { get { return new Guid("e932fb12-0cf3-45d5-ae98-94c2ac38300d"); } }
+        public override Guid ComponentGuid { get { return new Guid("8fd8d0fe-7f55-4494-a131-78edc3e329c1"); } }
 
         #endregion Properties
 

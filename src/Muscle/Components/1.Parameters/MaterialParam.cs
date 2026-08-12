@@ -44,7 +44,7 @@ namespace Muscle.Components.Param
         /// <summary>
         /// This is the Global Unique IDentifier (GUID) of the parameter. It's a unique value that allow to identify the parameter as itself. DO NOT change it.
         /// </summary>
-        public override Guid ComponentGuid { get { return new Guid("b3b4aef8-a88d-4f0d-ba64-84bf72bed615"); } }
+        public override Guid ComponentGuid { get { return new Guid("adbbd42d-bc40-4adf-ae90-81c4005dd316"); } }
 
         #endregion Constructors
 

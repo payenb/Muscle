@@ -191,7 +191,7 @@ namespace Muscle.Components.Solvers
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("a5cd4c04-270f-4f9a-a948-0a4164e041ec"); }
+            get { return new Guid("09995452-221e-45b8-b3cc-14c7ac220591"); }
         }
     }
 }

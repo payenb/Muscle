@@ -44,7 +44,7 @@ namespace Muscle.Components.ConstructFEModel
         /// <summary>
         /// This is the Global Unique IDentifier (GUID) of the component. It's a unique value that allow to identify the component as itself. DO NOT change it.
         /// </summary>
-        public override Guid ComponentGuid { get { return new Guid("a029c1d7-65b0-4aba-8d0a-e37299c70fcd"); } }
+        public override Guid ComponentGuid { get { return new Guid("49968780-8ee3-484a-9878-d0a82af1ca27"); } }
 
         /// <summary>
         /// Property to access component icon.
