@@ -50,6 +50,7 @@ namespace MuscleCore.Converters
             PyObjectConversions.RegisterEncoder(new PyNodesEncoder());
             PyObjectConversions.RegisterEncoder(new PyElementsEncoder());
             PyObjectConversions.RegisterEncoder(new PyConfigDREncoder());
+            PyObjectConversions.RegisterEncoder(new PyConfigSRDREncoder());
 
             PyObjectConversions.RegisterDecoder(new PyTrussDecoder());
             PyObjectConversions.RegisterDecoder(new PyNodesDecoder());
