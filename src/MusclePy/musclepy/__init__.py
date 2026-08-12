@@ -22,7 +22,7 @@ MusclePy is a Python package for structural analysis developed by Université ca
 """
 
 # Define version first
-__version__ = "1.1.0"
+__version__ = "2.0.0"
 
 # Import subpackages 
 from . import femodel

@@ -20,12 +20,12 @@
   
   <PropertyGroup>
     <!-- Specifies information for Assembly and Yak -->
-    <Version>1.1.0.0</Version>
-    <Title>Muscle</Title>
+    <Version>2.0.0.0</Version>
+    <Title>Muscle 2.0</Title>
     <Company>Université catholique de Louvain (UCLouvain)</Company>
-    <Description>Muscle is a Grasshopper plugin for structural analysis that focuses on the design, analysis, and optimization of tensegrity, tension-based, and truss-like structures.</Description>
+    <Description>Muscle 2.0 is a fork of Muscle, a Grasshopper plugin for structural analysis that focuses on the design, analysis, and optimization of tensegrity, tension-based, and truss-like structures. This fork adds new computation methods developed as part of Basile Payen's PhD research.</Description>
     <ApplicationManifest>..\..\manifest.yml</ApplicationManifest>
-    <RepositoryUrl>https://github.com/JonasFeron/Muscle</RepositoryUrl>
+    <RepositoryUrl>https://github.com/payenb/Muscle</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright (C) &lt;2015-2025&gt; &lt;Université catholique de Louvain (UCLouvain)&gt;</Copyright>
   </PropertyGroup>
