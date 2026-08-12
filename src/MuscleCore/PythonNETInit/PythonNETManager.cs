@@ -99,6 +99,7 @@ namespace MuscleCore.PythonNETInit
             {
                 return true; //nothing to do
             }
+            bool engineStarted = false;
             try
             {
                 string Lib = Path.Combine(condaEnvPath, "Lib");
@@ -114,7 +115,7 @@ namespace MuscleCore.PythonNETInit
 
                 Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.Process);
                 Environment.SetEnvironmentVariable("PYTHONHOME", condaEnvPath, EnvironmentVariableTarget.Process);
-                
+
                 if (UserMode)//user mode
                 {
                     //in user mode, musclepy will be accessible from site_packages, supposing the user has already run "pip install musclepy"
@@ -126,7 +127,7 @@ namespace MuscleCore.PythonNETInit
                     //in developer mode, musclepy will be accessible from the srcDirectory
                     Environment.SetEnvironmentVariable("PYTHONPATH", $"{site_packages};{Lib};{DLLs};{srcDirectory}", EnvironmentVariableTarget.Process);
                 }
-                
+
                 //Runtime.PythonDLL = pythonDllPath;
                 Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", pythonDllName);
 
@@ -134,14 +135,28 @@ namespace MuscleCore.PythonNETInit
                 PythonEngine.PythonPath = Environment.GetEnvironmentVariable("PYTHONPATH", EnvironmentVariableTarget.Process) ?? string.Empty;
 
                 PythonEngine.Initialize();
+                engineStarted = true;
                 Main.RegisterConverters();
 
                 TryPythonEngine(srcDirectory, site_packages);
-                
+
                 return true;
             }
             catch (Exception)
             {
+                // If PythonEngine.Initialize() succeeded but a later check (e.g. MusclePy not
+                // found) failed, the native Python engine would otherwise stay running while
+                // IsInitialized remains false. Any subsequent "Start Python.NET" attempt in this
+                // Rhino session - even targeting a different, valid conda environment - would then
+                // call PythonEngine.Initialize() again on an already-initialized engine, which
+                // silently breaks. Roll back so a retry can start from a clean state.
+                if (engineStarted)
+                {
+                    try { PythonEngine.Shutdown(); } catch (Exception) { /* best-effort cleanup */ }
+                }
+                Environment.SetEnvironmentVariable("PYTHONHOME", string.Empty, EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("PYTHONPATH", string.Empty, EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", string.Empty, EnvironmentVariableTarget.Process);
                 throw;
             }
         }
@@ -207,9 +222,18 @@ namespace MuscleCore.PythonNETInit
 
             if (string.IsNullOrEmpty(srcDirectory)) //user mode
             {
-                // Check if MusclePy directory exists in site-packages
+                // Check if MusclePy directory exists in site-packages (regular "pip install
+                // musclepy"). This alone misses "pip install -e ." (editable/developer)
+                // installs: modern pip (PEP 660) does not create a physical musclepy/ folder
+                // there, only a "musclepy-<version>.dist-info" metadata folder and a .pth file
+                // hooking into the import machinery. Accept either as proof of installation.
                 string musclepyPath = Path.Combine(site_packages, MusclePy);
                 if (Directory.Exists(musclepyPath))
+                {
+                    musclepyFound = true;
+                }
+                else if (Directory.Exists(site_packages)
+                         && Directory.GetDirectories(site_packages, $"{MusclePy}-*.dist-info").Length > 0)
                 {
                     musclepyFound = true;
                 }
