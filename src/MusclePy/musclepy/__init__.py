@@ -44,6 +44,8 @@ from .solvers.dm.nonlinear_dm import main_nonlinear_displacement_method
 from .solvers.dr.main import main_dynamic_relaxation
 from .solvers.svd.py_results_svd import PyResultsSVD
 from .solvers.dr.py_config_dr import PyConfigDR
+from .solvers.srdr.main import main_stiffness_reduction_dr
+from .solvers.srdr.py_config_srdr import PyConfigSRDR
 from .solvers.dynamic.py_results_dynamic import PyResultsDynamic
 from .solvers.dynamic.main import main_dynamic_modal_analysis
 
@@ -64,5 +66,7 @@ __all__ = [
     'main_linear_displacement_method',
     'main_nonlinear_displacement_method',
     'main_dynamic_relaxation',
+    'main_stiffness_reduction_dr',
+    'PyConfigSRDR',
     'main_dynamic_modal_analysis'
 ]

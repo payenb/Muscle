@@ -24,6 +24,7 @@ musclepy.solvers - Collection of structural analysis solvers
 # Import submodules first
 from . import dm
 from . import dr
+from . import srdr
 from . import dynamic
 from . import svd
 from . import selfstress
@@ -37,19 +38,23 @@ from .selfstress.modes import localize_self_stress_modes
 from .dm.linear_dm import main_linear_displacement_method
 from .dm.nonlinear_dm import main_nonlinear_displacement_method
 from .dr.main import main_dynamic_relaxation
+from .srdr.main import main_stiffness_reduction_dr
+from .srdr.py_config_srdr import PyConfigSRDR
 from .test.test_script import main as test_script_main
 from .dynamic.py_results_dynamic import PyResultsDynamic
 from .dynamic.main import main_dynamic_modal_analysis
 
-# Define __all__ 
+# Define __all__
 __all__ = [
-    'dm', 'dr', 'dynamic', 'svd', 'selfstress', 'test',
+    'dm', 'dr', 'srdr', 'dynamic', 'svd', 'selfstress', 'test',
     'main_singular_value_decomposition',
     'PyResultsSVD',
     'localize_self_stress_modes',
     'main_linear_displacement_method',
     'main_nonlinear_displacement_method',
     'main_dynamic_relaxation',
+    'main_stiffness_reduction_dr',
+    'PyConfigSRDR',
     'test_script_main',
     'PyResultsDynamic',
     'main_dynamic_modal_analysis'
