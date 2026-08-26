@@ -21,6 +21,17 @@ The AUTHOR is indebted to
 Website of Jonas FERON: https://github.com/JonasFeron/Muscle	https://www.food4rhino.com/en/app/muscle
 Contact: pierre.latteur@uclouvain.be
 
+Muscle 2.0 (this fork)
+-----------------------------------------
+
+This fork, Muscle 2.0 (https://github.com/payenb/Muscle), is developed by Basile Payen
+(Université catholique de Louvain, UCLouvain, Belgium), with implementation assistance from
+Claude (Anthropic). It adds, among others: the Stiffness-Reduction Dynamic Relaxation (SRDR)
+solver and the "Imperfection" buckling law for strut second-order effects, and the Beam FE
+Model (a 6-DOF-per-node beam-column element with real bending/shear/torsion) with both a
+Newton-Raphson (Solve Beam FEM) and an explicit kinetic-damping Dynamic Relaxation (Solve Beam
+DR) solver. See individual file headers for per-file attribution.
+
 Muscle General
 -----------------------------------------
 
