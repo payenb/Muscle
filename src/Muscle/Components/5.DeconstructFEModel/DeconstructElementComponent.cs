@@ -1,4 +1,4 @@
-﻿// Muscle
+// Muscle
 
 // Copyright <2015-2025> <Université catholique de Louvain (UCLouvain)>
 
@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 using System;
@@ -63,6 +64,8 @@ namespace Muscle.Components.DeconstructFEModel
             pManager.AddNumberParameter("Mass", "m (kg)", "Mass (kg) of the element", GH_ParamAccess.item); //7
             pManager.AddNumberParameter("Tension", "t (kN)", "Axial force (kN, tension positive, compression negative) in the element due to all applied loads and prestress", GH_ParamAccess.item); //8
             pManager.AddIntervalParameter("Resistances", "[tmin, tmax] (kN)", "Resistance interval [(-)Buckling resistance, (+)Yielding resistance] (kN)", GH_ParamAccess.item); //9
+            pManager.AddNumberParameter("Moment", "M (kN.m)", "Second-order bending moment M = N*e_max (only set by the Stiffness-Reduction Dynamic Relaxation solver; 0 otherwise, or for cables/struts currently in tension)", GH_ParamAccess.item); //10
+            pManager.AddNumberParameter("Deflection", "e (mm)", "Amplified mid-span deflection e_max (only set by the Stiffness-Reduction Dynamic Relaxation solver; 0 otherwise, or for cables/struts currently in tension)", GH_ParamAccess.item); //11
         }
 
         /// <summary>
@@ -88,6 +91,9 @@ namespace Muscle.Components.DeconstructFEModel
             double Ryb = e.Resistance.T0 /1000; //kN
             double Ryt = e.Resistance.T1 /1000;
             DA.SetData(9, new Interval(Ryb, Ryt));
+
+            DA.SetData(10, e.Moment / 1000);
+            DA.SetData(11, e.Deflection * 1000);
         }
 
         /// <summary>

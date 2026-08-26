@@ -16,6 +16,7 @@
 
 # List of the contributors to the development of Muscle: see NOTICE file.
 # Description and complete License: see NOTICE file.
+# This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 
 import numpy as np
 from musclepy.femodel.pyelements import PyElements
@@ -32,16 +33,23 @@ class PyElementsDR(PyElements):
         local_geometric_stiffness_matrices: List of local geometric stiffness matrices
         inertia: [mm^4] - shape (elements_count,) - Second moment of area of elements
         imperfection: [m] - shape (elements_count,) - Initial imperfection amplitude e0 of elements
+        moment: [N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max
+        deflection: [m] - shape (elements_count,) - Amplified mid-span deflection e_max
 
     Note: inertia/imperfection are physical properties of an element (like area), not
     algorithmic state - they live here (alongside area) rather than in a further
     solver-specific subclass so that any DR-family solver (e.g. musclepy.solvers.srdr,
     and future beam-based solvers) can use them without duplicating this plumbing. Plain
     DR simply ignores them (imperfection defaults to 0, i.e. no imperfection modeled).
+    moment/deflection are results rather than inputs (set once musclepy.solvers.srdr
+    converges; plain DR leaves them at their 0 default, same as an unset Tension) but live
+    here for the same reason - so any DR-family solver can carry them without a further
+    subclass.
     """
 
     def __init__(self, elements_or_nodes, type=None, end_nodes=None, area=None, youngs=None,
-                 free_length=None, tension=None, inertia=None, imperfection=None):
+                 free_length=None, tension=None, inertia=None, imperfection=None,
+                 moment=None, deflection=None):
         """Initialize a PyElementsDR instance.
 
         This constructor accepts either:
@@ -61,6 +69,12 @@ class PyElementsDR(PyElements):
             imperfection: [m] - shape (elements_count,) - Initial imperfection amplitude e0 of
                      elements. Defaults to 0 (unused by plain DR; musclepy.solvers.srdr applies
                      its own default of L0/300 when none is provided).
+            moment: [N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max.
+                     Defaults to 0 (unused by plain DR; set by musclepy.solvers.srdr once
+                     converged).
+            deflection: [m] - shape (elements_count,) - Amplified mid-span deflection e_max.
+                     Defaults to 0 (unused by plain DR; set by musclepy.solvers.srdr once
+                     converged).
         """
         # Check if the first argument is a PyElements instance
         if isinstance(elements_or_nodes, PyElements):
@@ -81,13 +95,17 @@ class PyElementsDR(PyElements):
                 elements.tension
             )
 
-            # If elements already carries inertia/imperfection (i.e. it is itself a
-            # PyElementsDR), preserve them unless explicitly overridden.
+            # If elements already carries inertia/imperfection/moment/deflection (i.e. it is
+            # itself a PyElementsDR), preserve them unless explicitly overridden.
             if isinstance(elements, PyElementsDR):
                 if inertia is None:
                     inertia = elements.inertia
                 if imperfection is None:
                     imperfection = elements.imperfection
+                if moment is None:
+                    moment = elements.moment
+                if deflection is None:
+                    deflection = elements.deflection
         else:
             # Assert that the first argument is a PyNodes or PyNodesDR instance
             assert isinstance(elements_or_nodes, (PyNodes, PyNodesDR)), "First argument must be either a PyElements, PyNodes, or PyNodesDR instance"
@@ -99,6 +117,8 @@ class PyElementsDR(PyElements):
         self._local_geometric_stiffness_matrices = []  # [N/m] - List(elements.count) of shape (6,6) matrices
         self._inertia = self._check_and_reshape_array(inertia, "inertia")
         self._imperfection = self._check_and_reshape_array(imperfection, "imperfection")
+        self._moment = self._check_and_reshape_array(moment, "moment")
+        self._deflection = self._check_and_reshape_array(deflection, "deflection")
 
     @property
     def local_geometric_stiffness_matrices(self) -> list:
@@ -119,7 +139,17 @@ class PyElementsDR(PyElements):
     def imperfection(self) -> np.ndarray:
         """[m] - shape (elements_count,) - Initial imperfection amplitude e0"""
         return self._imperfection
-    
+
+    @property
+    def moment(self) -> np.ndarray:
+        """[N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max"""
+        return self._moment
+
+    @property
+    def deflection(self) -> np.ndarray:
+        """[m] - shape (elements_count,) - Amplified mid-span deflection e_max"""
+        return self._deflection
+
     def compute_current_state(self):
         """Compute the current state of the elements.
         
@@ -151,18 +181,21 @@ class PyElementsDR(PyElements):
         )
     
     def _create_copy(self, nodes, type, end_nodes, area, youngs, free_length, tension,
-                      inertia=None, imperfection=None):
+                      inertia=None, imperfection=None, moment=None, deflection=None):
         """Core copy method that creates a new instance of the appropriate class.
 
         This protected method is used by all copy methods to create a new instance.
         Child classes should override this method to return an instance of their own class.
-        inertia/imperfection default to the current values when not explicitly provided.
+        inertia/imperfection/moment/deflection default to the current values when not
+        explicitly provided.
 
         Returns:
             A new instance of the appropriate class (PyElementsDR or a child class)
         """
         inertia = self._inertia if inertia is None else inertia
         imperfection = self._imperfection if imperfection is None else imperfection
+        moment = self._moment if moment is None else moment
+        deflection = self._deflection if deflection is None else deflection
         return self.__class__(
             nodes,
             type=type,
@@ -172,10 +205,13 @@ class PyElementsDR(PyElements):
             free_length=free_length,
             tension=tension,
             inertia=inertia,
-            imperfection=imperfection
+            imperfection=imperfection,
+            moment=moment,
+            deflection=deflection
         )
 
-    def copy_and_update(self, nodes=None, free_length=None, tension=None, youngs=None) -> 'PyElementsDR':
+    def copy_and_update(self, nodes=None, free_length=None, tension=None, youngs=None,
+                         moment=None, deflection=None) -> 'PyElementsDR':
         """Create a copy of this instance and update its state.
 
         Args:
@@ -185,6 +221,10 @@ class PyElementsDR(PyElements):
             youngs: [MPa] - shape (elements_count, 2) - Young's moduli for compression and tension.
                     Needed by musclepy.solvers.srdr to apply the stiffness reduction factor
                     Kred/K to the compression Young's modulus between successive DR runs.
+            moment: [N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max.
+                    Set by musclepy.solvers.srdr once converged.
+            deflection: [m] - shape (elements_count,) - Amplified mid-span deflection e_max.
+                    Set by musclepy.solvers.srdr once converged.
 
         Returns:
             A new instance with the updated state
@@ -203,5 +243,7 @@ class PyElementsDR(PyElements):
             self.area.copy(),
             youngs,
             free_length,
-            tension
+            tension,
+            moment=moment,
+            deflection=deflection
         )

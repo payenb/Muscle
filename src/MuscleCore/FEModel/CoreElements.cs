@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 // PythonNETGrasshopperTemplate
@@ -91,6 +92,20 @@ namespace MuscleCore.FEModel
         /// </summary>
         public double[]? Tension { get; set; }
 
+        /// <summary>
+        /// [N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max, from
+        /// MuscleCore.Solvers.StiffnessReductionDynamicRelaxation. Null for any other solver's
+        /// result (plain DR, SVD, ...), where this quantity is not computed.
+        /// </summary>
+        public double[]? Moment { get; set; }
+
+        /// <summary>
+        /// [m] - shape (elements_count,) - Amplified mid-span deflection e_max, from
+        /// MuscleCore.Solvers.StiffnessReductionDynamicRelaxation. Null for any other solver's
+        /// result (plain DR, SVD, ...), where this quantity is not computed.
+        /// </summary>
+        public double[]? Deflection { get; set; }
+
         #endregion
 
         #region Constructors
@@ -106,8 +121,11 @@ namespace MuscleCore.FEModel
         /// <param name="youngs">[MPa] - shape (elements_count, 2) - Young's moduli for compression and tension</param>
         /// <param name="freeLength">[m] - shape (elements_count,) - Free length of the elements</param>
         /// <param name="tension">[N] - shape (elements_count,) - Axial force (positive in tension)</param>
-        public CoreElements(CoreNodes nodes, int[]? type = null, int[,]? endNodes = null, double[]? area = null, 
-                          double[,]? youngs = null, double[]? freeLength = null, double[]? tension = null)
+        /// <param name="moment">[N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max (SRDR results only)</param>
+        /// <param name="deflection">[m] - shape (elements_count,) - Amplified mid-span deflection e_max (SRDR results only)</param>
+        public CoreElements(CoreNodes nodes, int[]? type = null, int[,]? endNodes = null, double[]? area = null,
+                          double[,]? youngs = null, double[]? freeLength = null, double[]? tension = null,
+                          double[]? moment = null, double[]? deflection = null)
         {
             Nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
             Type = type ?? throw new ArgumentNullException(nameof(type));
@@ -118,8 +136,10 @@ namespace MuscleCore.FEModel
             // if null values : handle it in Python
             Area = area; //may be null for the SVD calculation
             Youngs = youngs;
-            FreeLength = freeLength; 
+            FreeLength = freeLength;
             Tension = tension;
+            Moment = moment; // null unless decoded from a PyElementsDR that has run through SRDR
+            Deflection = deflection;
         }
 
         #endregion

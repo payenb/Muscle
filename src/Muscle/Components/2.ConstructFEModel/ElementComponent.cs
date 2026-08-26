@@ -1,4 +1,4 @@
-﻿// Muscle
+// Muscle
 
 // Copyright <2015-2025> <Université catholique de Louvain (UCLouvain)>
 
@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 using Grasshopper.Kernel;
@@ -33,8 +34,8 @@ namespace Muscle.Components.ConstructFEModel
     {
         public bool displayIn3d { get; set; }
 
-        public static readonly string[] _bucklingLaws= {"Yielding", "Euler", "Rankine", "a", "b", "c", "d", "Slack"};
-        public static readonly int[] _bucklingLawsIdx = { 0, -1, -2, 1, 2, 3, 4, 10};
+        public static readonly string[] _bucklingLaws= {"Yielding", "Euler", "Rankine", "Imperfection", "a", "b", "c", "d", "Slack"};
+        public static readonly int[] _bucklingLawsIdx = { 0, -1, -2, -3, 1, 2, 3, 4, 10};
 
 
         public ElementComponent() : base("Construct Element", "E", "A finite element is constructed from a line, a cross-section and a material.", GHAssemblyName, Folder2_ConstructFEM) 
@@ -82,7 +83,7 @@ namespace Muscle.Components.ConstructFEModel
             pManager[2].Optional = true;
             pManager.AddTextParameter("Element Name", "Name", "Name of the element", GH_ParamAccess.item, "Element");
             pManager[3].Optional = true;
-            pManager.AddIntegerParameter("Buckling Law", "B. law", "Choose a buckling law between \"Euler\", \"Rankine\", Eurocode (EN1993) curves \"a\",\"b\",\"c\",\"d\".\n \"Yielding\" law corresponds to buckling strength = yielding strength.\n \"Slack\" law cancels the strength in compression (but not the young modulus! -> for non-linear analysis of slack cables with 0 stiffness in compression, use tension only material).", GH_ParamAccess.item, 0);
+            pManager.AddIntegerParameter("Buckling Law", "B. law", "Choose a buckling law between \"Euler\", \"Rankine\", \"Imperfection\", Eurocode (EN1993) curves \"a\",\"b\",\"c\",\"d\".\n \"Yielding\" law corresponds to buckling strength = yielding strength.\n \"Imperfection\" law computes the ultimate compression strength from the Perry-Robertson equation (Eq. 14), using the element's own imperfection e0.\n \"Slack\" law cancels the strength in compression (but not the young modulus! -> for non-linear analysis of slack cables with 0 stiffness in compression, use tension only material).", GH_ParamAccess.item, 0);
             pManager[4].Optional = true;
             pManager.AddNumberParameter("Buckling Factor", "k", "Buckling factor k defines the buckling length Lb such that Lb = k*Lfree", GH_ParamAccess.item, 1.0);
             pManager[5].Optional = true;

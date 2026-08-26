@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 using Rhino.Geometry;
@@ -78,7 +79,19 @@ namespace MuscleApp.Converters
                 {
                     updatedElement.Tension = coreElementsResults.Tension[i];
                 }
-                
+
+                // Only set by the Stiffness-Reduction Dynamic Relaxation solver - null (and
+                // left at Element's default of 0) for any other solver's result.
+                if (coreElementsResults.Moment != null)
+                {
+                    updatedElement.Moment = coreElementsResults.Moment[i];
+                }
+
+                if (coreElementsResults.Deflection != null)
+                {
+                    updatedElement.Deflection = coreElementsResults.Deflection[i];
+                }
+
                 // Add the updated element to the list
                 updatedElements.Add(updatedElement);
             }

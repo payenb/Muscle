@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 // PythonNETGrasshopperTemplate
@@ -100,6 +101,22 @@ namespace MuscleCore.Converters
                     var freeLength = py.free_length.tolist().As<double[]>();
                     var tension = py.tension.tolist().As<double[]>();
 
+                    // moment/deflection only exist on PyElementsDR instances that went through
+                    // musclepy.solvers.srdr (see PyElementsDR.moment/.deflection) - plain
+                    // PyElements (and PyElementsDR from any other DR-family solver) has no such
+                    // attribute, so leave them null (CoreElements.Moment/Deflection) rather than
+                    // fail the whole decode.
+                    double[]? moment = null;
+                    double[]? deflection = null;
+                    try
+                    {
+                        moment = py.moment.tolist().As<double[]>();
+                        deflection = py.deflection.tolist().As<double[]>();
+                    }
+                    catch (Exception)
+                    {
+                        // no moment/deflection on this PyElements instance - leave null
+                    }
 
                     // Create elements object with all properties
                     var elements = new CoreElements(
@@ -109,7 +126,9 @@ namespace MuscleCore.Converters
                         youngs: youngs,
                         area: area,
                         freeLength: freeLength,
-                        tension: tension
+                        tension: tension,
+                        moment: moment,
+                        deflection: deflection
                     );
 
                     value = (T)(object)elements;

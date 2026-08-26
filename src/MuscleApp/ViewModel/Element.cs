@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 using Rhino.Geometry;
@@ -73,6 +74,20 @@ namespace MuscleApp.ViewModel
         }
 
         public double Tension { get; set; } //[N]
+
+        /// <summary>
+        /// [N.m] Second-order bending moment M = N*e_max, set by the Stiffness-Reduction
+        /// Dynamic Relaxation solver (0 for any other solver, or for cables/struts currently
+        /// in tension, where the beam-column imperfection model doesn't apply).
+        /// </summary>
+        public double Moment { get; set; } //[N.m]
+
+        /// <summary>
+        /// [m] Amplified mid-span deflection e_max, set by the Stiffness-Reduction Dynamic
+        /// Relaxation solver (0 for any other solver, or for cables/struts currently in
+        /// tension, where the beam-column imperfection model doesn't apply).
+        /// </summary>
+        public double Deflection { get; set; } //[m]
 
 
 
@@ -190,8 +205,58 @@ namespace MuscleApp.ViewModel
                         {
                             return 0.0;
                         }
+                    case "Imperfection":
+                        {
+                            return Xsi_Imperfection;
+                        }
                 }
                 return 1.0; // return yielding in all other cases !
+            }
+        }
+
+        /// <summary>
+        /// Buckling reduction factor from the first-yield (Ayrton-Perry / Perry-Robertson)
+        /// interaction check of a strut with an initial geometric imperfection e0 (Eq. 14 of
+        /// Payen B., Latteur P., Pacheco de Almeida J., "Effect of Strut Geometric
+        /// Imperfections on the Internal Forces Distribution in Tensegrity Structures", J.
+        /// Struct. Eng., 2026, 152(5): 04026039): N/A + N*e_max/Wel = Fyc at the maximum
+        /// sustainable axial force N, with e_max = e0/(1-N/Ncr) (same amplification as
+        /// musclepy.solvers.srdr.formulas.amplified_deflection). Solving this for N/Ncr gives
+        /// the quadratic below.
+        ///
+        /// Assumes a pinned-pinned strut (buckling length = FreeLength, kb intentionally NOT
+        /// applied) and e0 = FreeLength/300 (Eurocode 9), matching exactly what
+        /// musclepy.solvers.srdr.main assumes when no explicit imperfection is provided - so
+        /// this capacity check stays consistent with the SRDR solver's own physics.
+        /// </summary>
+        private double Xsi_Imperfection
+        {
+            get
+            {
+                double A = CS.Area;
+                double I = CS.Inertia;
+                double Wel = CS.Wel;
+                double Lb = FreeLength; // pinned-pinned; see docstring above
+                double Ec = Material.Ec;
+                double FycAbs = -Material.Fyc; // Material.Fyc is stored negative (compression)
+                if (A <= 0 || I <= 0 || Wel <= 0 || Lb <= 0 || Ec <= 0 || FycAbs <= 0)
+                    return 0.0;
+
+                double Ncr = Math.PI * Math.PI * Ec * I / (Lb * Lb);
+                double e0 = FreeLength / 300.0; // Eurocode 9 default, see DEFAULT_IMPERFECTION_RATIO
+
+                double sigmaCr = Ncr / A; // [Pa] Euler stress
+                double eta = A * e0 / Wel; // [-] Perry factor
+                double sum = (1 + eta) + FycAbs / sigmaCr;
+                double discriminant = sum * sum - 4 * FycAbs / sigmaCr;
+                if (discriminant < 0) discriminant = 0; // numerical safety near/beyond Ncr
+
+                double n = (sum - Math.Sqrt(discriminant)) / 2.0; // N/Ncr at first yield
+                double xsi = n * sigmaCr / FycAbs;
+
+                if (xsi < 0) return 0.0;
+                if (xsi > 1) return 1.0;
+                return xsi;
             }
         }
 
@@ -269,6 +334,8 @@ namespace MuscleApp.ViewModel
             BucklingLaw = "Yielding";
             kb = 1.0;
             Tension = 0;
+            Moment = 0;
+            Deflection = 0;
         }
 
 
@@ -303,6 +370,8 @@ namespace MuscleApp.ViewModel
             kb = other.kb;
             Idx = other.Idx;
             Tension = other.Tension;
+            Moment = other.Moment;
+            Deflection = other.Deflection;
         }
 
         

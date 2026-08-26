@@ -1,4 +1,4 @@
-﻿// Muscle
+// Muscle
 
 // Copyright <2015-2025> <Université catholique de Louvain (UCLouvain)>
 
@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 using Rhino.Geometry;
@@ -37,6 +38,13 @@ namespace MuscleApp.ViewModel
         double DoverT { get; } // ratio Dimension/Thickness
         double Area { get; } //m2
         double Inertia { get; } //m4
+        double Wel { get; } //m3 - elastic section modulus = Inertia / (Dimension/2)
+
+        /// <summary>
+        /// Saint-Venant torsion constant in m4. Used only by the Beam FE model (torsional
+        /// stiffness GJ/L) - the axial-only Element/Truss/DR/SRDR pipeline never reads this.
+        /// </summary>
+        double J { get; }
 
         double q { get; }
         bool IsValid { get; }
@@ -100,6 +108,21 @@ namespace MuscleApp.ViewModel
         public double Inertia
         {
             get { return pi / 64.0 * (Math.Pow(Dimension, 4.0) - Math.Pow(Dimension - 2.0 * Thickness, 4.0)); }
+        }
+
+        public double Wel
+        {
+            get { return Inertia / (Dimension / 2.0); }
+        }
+
+        /// <summary>
+        /// Saint-Venant torsion constant. Exact (not an approximation) for any circular
+        /// section, solid or hollow: the polar moment of inertia Ix+Iy = 2*Inertia equals the
+        /// torsion constant for circular cross-sections. Used only by the Beam FE model.
+        /// </summary>
+        public double J
+        {
+            get { return 2.0 * Inertia; }
         }
 
         public double q
@@ -209,6 +232,20 @@ namespace MuscleApp.ViewModel
         public double Area { get { return Math.Pow(Dimension, 2.0) - Math.Pow(Dimension - 2.0 * Thickness, 2.0); } }
 
         public double Inertia { get { return (Math.Pow(Dimension, 4.0) - Math.Pow(Dimension - 2.0 * Thickness, 4.0)) / 12.0; } }
+
+        public double Wel { get { return Inertia / (Dimension / 2.0); } }
+
+        /// <summary>
+        /// Saint-Venant torsion constant, from the thin-walled closed-section (Bredt) formula
+        /// on the mid-wall square contour: J = 4*Am^2*t / perimeter = (Dimension-Thickness)^3
+        /// * Thickness. Standard engineering approximation for hollow square/rectangular
+        /// tubes (unlike the circular section, there is no simple exact formula). Used only
+        /// by the Beam FE model.
+        /// </summary>
+        public double J
+        {
+            get { return Math.Pow(Dimension - Thickness, 3.0) * Thickness; }
+        }
 
         public double q
         {
