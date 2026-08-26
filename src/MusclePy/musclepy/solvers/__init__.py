@@ -16,6 +16,7 @@
 
 # List of the contributors to the development of Muscle: see NOTICE file.
 # Description and complete License: see NOTICE file.
+# This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 
 """
 musclepy.solvers - Collection of structural analysis solvers
@@ -25,6 +26,8 @@ musclepy.solvers - Collection of structural analysis solvers
 from . import dm
 from . import dr
 from . import srdr
+from . import beam_fem
+from . import beam_dr
 from . import dynamic
 from . import svd
 from . import selfstress
@@ -40,13 +43,19 @@ from .dm.nonlinear_dm import main_nonlinear_displacement_method
 from .dr.main import main_dynamic_relaxation
 from .srdr.main import main_stiffness_reduction_dr
 from .srdr.py_config_srdr import PyConfigSRDR
+from .beam_fem.main import solve as main_beam_fem
+from .beam_fem.py_config_beam import PyConfigBeam
+from .beam_fem.py_beam_nodes import PyBeamNodes
+from .beam_fem.py_beam_elements import PyBeamElements
+from .beam_dr.main import solve as main_beam_dr
+from .beam_dr.py_config_beam_dr import PyConfigBeamDR
 from .test.test_script import main as test_script_main
 from .dynamic.py_results_dynamic import PyResultsDynamic
 from .dynamic.main import main_dynamic_modal_analysis
 
 # Define __all__
 __all__ = [
-    'dm', 'dr', 'srdr', 'dynamic', 'svd', 'selfstress', 'test',
+    'dm', 'dr', 'srdr', 'beam_fem', 'beam_dr', 'dynamic', 'svd', 'selfstress', 'test',
     'main_singular_value_decomposition',
     'PyResultsSVD',
     'localize_self_stress_modes',
@@ -55,6 +64,12 @@ __all__ = [
     'main_dynamic_relaxation',
     'main_stiffness_reduction_dr',
     'PyConfigSRDR',
+    'main_beam_fem',
+    'PyConfigBeam',
+    'PyBeamNodes',
+    'PyBeamElements',
+    'main_beam_dr',
+    'PyConfigBeamDR',
     'test_script_main',
     'PyResultsDynamic',
     'main_dynamic_modal_analysis'

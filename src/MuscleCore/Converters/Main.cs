@@ -1,4 +1,4 @@
-﻿// Muscle
+// Muscle
 
 // Copyright <2015-2025> <Université catholique de Louvain (UCLouvain)>
 
@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 // PythonNETGrasshopperTemplate
@@ -51,12 +52,20 @@ namespace MuscleCore.Converters
             PyObjectConversions.RegisterEncoder(new PyElementsEncoder());
             PyObjectConversions.RegisterEncoder(new PyConfigDREncoder());
             PyObjectConversions.RegisterEncoder(new PyConfigSRDREncoder());
+            // BEAM FE MODEL ONLY - new, parallel pipeline, independent of DR/SRDR above
+            PyObjectConversions.RegisterEncoder(new PyBeamNodesEncoder());
+            PyObjectConversions.RegisterEncoder(new PyBeamElementsEncoder());
+            PyObjectConversions.RegisterEncoder(new PyConfigBeamEncoder());
+            PyObjectConversions.RegisterEncoder(new PyConfigBeamDREncoder());
 
             PyObjectConversions.RegisterDecoder(new PyTrussDecoder());
             PyObjectConversions.RegisterDecoder(new PyNodesDecoder());
             PyObjectConversions.RegisterDecoder(new PyElementsDecoder());
             PyObjectConversions.RegisterDecoder(new PyResultsSVDDecoder());
             PyObjectConversions.RegisterDecoder(new PyResultsDynamicDecoder());
+            // BEAM FE MODEL ONLY
+            PyObjectConversions.RegisterDecoder(new PyBeamNodesDecoder());
+            PyObjectConversions.RegisterDecoder(new PyBeamElementsDecoder());
 
         }
     }

@@ -16,6 +16,7 @@
 
 # List of the contributors to the development of Muscle: see NOTICE file.
 # Description and complete License: see NOTICE file.
+# This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 
 """
 MusclePy is a Python package for structural analysis developed by Université catholique de Louvain (UCLouvain). It focuses on the design, analysis, and optimization of tensegrity, tension-based, and truss-like structures.
@@ -46,6 +47,12 @@ from .solvers.svd.py_results_svd import PyResultsSVD
 from .solvers.dr.py_config_dr import PyConfigDR
 from .solvers.srdr.main import main_stiffness_reduction_dr
 from .solvers.srdr.py_config_srdr import PyConfigSRDR
+from .solvers.beam_fem.main import solve as main_beam_fem
+from .solvers.beam_fem.py_config_beam import PyConfigBeam
+from .solvers.beam_fem.py_beam_nodes import PyBeamNodes
+from .solvers.beam_fem.py_beam_elements import PyBeamElements
+from .solvers.beam_dr.main import solve as main_beam_dr
+from .solvers.beam_dr.py_config_beam_dr import PyConfigBeamDR
 from .solvers.dynamic.py_results_dynamic import PyResultsDynamic
 from .solvers.dynamic.main import main_dynamic_modal_analysis
 
@@ -68,5 +75,11 @@ __all__ = [
     'main_dynamic_relaxation',
     'main_stiffness_reduction_dr',
     'PyConfigSRDR',
+    'main_beam_fem',
+    'PyConfigBeam',
+    'PyBeamNodes',
+    'PyBeamElements',
+    'main_beam_dr',
+    'PyConfigBeamDR',
     'main_dynamic_modal_analysis'
 ]
