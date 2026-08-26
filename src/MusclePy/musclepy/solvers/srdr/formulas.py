@@ -16,6 +16,7 @@
 
 # List of the contributors to the development of Muscle: see NOTICE file.
 # Description and complete License: see NOTICE file.
+# This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 
 """
 musclepy.solvers.srdr.formulas - Analytical stiffness reduction for imperfect struts
@@ -98,8 +99,37 @@ def chord_length_ratio(N: np.ndarray, ncr: np.ndarray, imperfection_ratio: np.nd
     N_ncr = N / ncr
     N_EA = (np.pi ** 2 / lam ** 2) * N_ncr  # Eq. 9 of [1]
     linear_coeff = 0.5 * (1 - N_EA) * (1 + (np.pi ** 2 / 4) * imperfection_ratio ** 2)
+
+    # This second-order model's discriminant turns negative before N actually reaches ncr
+    # (its true valid domain is N < N* for some N* < ncr depending on imperfection_ratio and
+    # lam - physically, the imperfect strut's own buckling resistance is always below the
+    # perfect-strut Euler load, similar to an Ayrton-Perry type formula). Beyond that point,
+    # clamp the discriminant to 0 rather than letting sqrt() of a negative number return NaN:
+    # L/L0 then falls back to its linear term alone, which stays finite and keeps Kred/K
+    # tending to (near-)0 as intended (see stiffness_reduction_factor()'s docstring) instead
+    # of poisoning the caller with NaN.
     discriminant = linear_coeff ** 2 - (np.pi ** 2 / 4) * imperfection_ratio ** 2 / (1 - N_ncr) ** 2
+    discriminant = np.maximum(discriminant, 0.0)
     return linear_coeff + np.sqrt(discriminant)
+
+
+def amplified_deflection(N: np.ndarray, ncr: np.ndarray, e0: np.ndarray) -> np.ndarray:
+    """[same unit as e0] e_max = e0 / (1 - N/Ncr): classic beam-column amplification of an
+    initial sinusoidal imperfection e0 under axial compression N (see e.g. Timoshenko).
+
+    Args:
+        N: [N] Axial compressive force (positive for compression)
+        ncr: [N] Euler critical load
+        e0: [mm] Initial imperfection amplitude (NOT the ratio e0/L0 - the absolute value)
+
+    Returns:
+        [mm] Amplified mid-span deflection e_max, capped at 1000*e0: N/Ncr is capped at 0.999
+        so e_max stays finite instead of diverging to infinity exactly at buckling (the correct
+        physical limit, but not a usable numeric value) - a value near that cap already
+        clearly signals a strut on the verge of buckling.
+    """
+    N_ncr = np.minimum(N / ncr, 0.999)
+    return e0 / (1 - N_ncr)
 
 
 def stiffness_reduction_factor(N: np.ndarray, ncr: np.ndarray, imperfection_ratio: np.ndarray,
@@ -142,6 +172,10 @@ def stiffness_reduction_factor(N: np.ndarray, ncr: np.ndarray, imperfection_rati
     # continuous. Nudge N away from exactly 0 (relative to ncr) to evaluate that limit
     # numerically instead, consistently in both the numerator and chord_length_ratio() below;
     # this is a no-op for any N that isn't already extremely close to 0.
+    #
+    # N approaching or exceeding ncr (e.g. during early, not-yet-converged outer iterations
+    # under a heavy load) is handled by chord_length_ratio()'s own discriminant clamp below,
+    # which keeps L_L0 - and hence this ratio - finite instead of NaN.
     safe_N = np.maximum(N, 1e-6 * ncr)
 
     L_L0 = chord_length_ratio(safe_N, ncr, safe_imperfection_ratio, lam)

@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 // PythonNETGrasshopperTemplate
@@ -137,6 +138,20 @@ namespace MuscleCore.PythonNETInit
                 PythonEngine.Initialize();
                 engineStarted = true;
                 Main.RegisterConverters();
+
+                // Explicitly setting PythonEngine.PythonPath above (Py_SetPath under the hood)
+                // makes CPython skip its normal sys.prefix/site-packages resolution, which in
+                // turn means the "site" module's automatic addsitedir() call on site_packages
+                // never happens - so any *.pth file there (e.g. the one written by
+                // "pip install -e ." for an editable musclepy install) never gets processed,
+                // and its target directory never makes it onto sys.path. Force addsitedir()
+                // explicitly so editable installs resolve exactly as they would from a normal
+                // (non-embedded) `python.exe` in this environment.
+                using (Py.GIL())
+                {
+                    dynamic site = Py.Import("site");
+                    site.addsitedir(site_packages);
+                }
 
                 TryPythonEngine(srcDirectory, site_packages);
 

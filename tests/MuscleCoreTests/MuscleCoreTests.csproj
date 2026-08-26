@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic). -->
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
@@ -31,7 +32,36 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Plain <Reference>, not <PackageReference>: the RhinoCommon NuGet package's own build
+         targets intentionally suppress copying RhinoCommon.dll to the output directory (a real
+         .gha plugin relies on Rhino's own already-loaded copy at runtime) - but vstest.console.exe
+         is a standalone process, not Rhino, so it needs its own physical copy to run at all.
+         <Private>true</Private> forces MSBuild's own copy-local logic regardless. -->
+    <Reference Include="RhinoCommon">
+      <HintPath>$(NuGetPackageRoot)rhinocommon\7.37.24107.15001\lib\net48\RhinoCommon.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- The RhinoCommon package's own build targets forcibly strip it (and Eto/Rhino.UI) from
+       @(ReferenceCopyLocalPaths) project-wide, even for a project that references it directly
+       with Private=true - that suppression is meant for real .gha plugins (Rhino already
+       provides these DLLs at runtime) but breaks vstest.console.exe, a standalone process with
+       no Rhino to provide them. Copy them explicitly after build instead. -->
+  <Target Name="CopyRhinoCommonForTests" AfterTargets="Build">
+    <ItemGroup>
+      <_RhinoDllsForTests Include="$(NuGetPackageRoot)rhinocommon\7.37.24107.15001\lib\net48\RhinoCommon.dll" />
+      <_RhinoDllsForTests Include="$(NuGetPackageRoot)rhinocommon\7.37.24107.15001\lib\net48\Eto.dll" />
+      <_RhinoDllsForTests Include="$(NuGetPackageRoot)rhinocommon\7.37.24107.15001\lib\net48\Rhino.UI.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_RhinoDllsForTests)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\MuscleCore\MuscleCore.csproj" />
+    <ProjectReference Include="..\..\src\MuscleApp\MuscleApp.csproj" />
   </ItemGroup>
 
 </Project>

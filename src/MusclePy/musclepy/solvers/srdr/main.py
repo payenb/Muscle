@@ -16,6 +16,7 @@
 
 # List of the contributors to the development of Muscle: see NOTICE file.
 # Description and complete License: see NOTICE file.
+# This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 
 """
 References:
@@ -40,6 +41,12 @@ from musclepy.solvers.srdr.py_config_srdr import PyConfigSRDR
 from musclepy.solvers.srdr import formulas
 
 DEFAULT_IMPERFECTION_RATIO = 1 / 300  # e0/L0, recommended by Eurocode 9 (CEN 2007), see [1]
+
+# Max allowed gap between the applied Kred/K and the value implied by the force it produced,
+# for the outer loop to be considered converged (see the ratio_delta check below). Not exposed
+# as a PyConfigSRDR setting: this is an internal numerical safeguard, not a physically
+# meaningful tolerance a user would tune (unlike force_tol).
+STIFFNESS_RATIO_TOL = 1e-3
 
 
 def main_stiffness_reduction_dr(structure: PyTruss, loads_increment: np.ndarray = None,
@@ -99,9 +106,21 @@ def main_stiffness_reduction_dr(structure: PyTruss, loads_increment: np.ndarray 
     original_compression_youngs = srdr_structure.elements.youngs[:, 0].astype(float).copy()
 
     # Precompute the (constant) geometric properties needed by the formulas, converted to
-    # [mm] to stay consistent with musclepy.solvers.srdr.formulas (see its module docstring),
-    # since PyElements stores free_length in [m] but area/inertia in [mm^2]/[mm^4].
+    # [mm]/[mm^2]/[MPa] to stay consistent with musclepy.solvers.srdr.formulas (see its module
+    # docstring). free_length is [m], a genuine musclepy-wide convention. area and youngs,
+    # however, arrive here exactly as MuscleApp.Converters.ElementsEncoder copied them from
+    # Element.CS.Area [m^2] and Element.Material.Ec/Et [Pa] - real SI, with NO mm/MPa
+    # conversion applied anywhere upstream (DR's own EA/L stiffness is invariant to any
+    # consistent area/youngs rescaling, so this was never an issue there, only here where
+    # Ncr = pi^2*E*I/L0^2 and lambda = L0*sqrt(A/I) are not scale-invariant the same way).
+    # inertia is the one exception already in the right unit: it arrives as an explicit,
+    # separate parameter that the caller (MuscleApp.Solvers.SRDR.SRDR) already converts to
+    # [mm^4], since it isn't part of CoreElements/PyElements at all.
+    M2_TO_MM2 = 1e6
+    PA_TO_MPA = 1e-6
     L0_mm = srdr_structure.elements.free_length * 1e3
+    area_mm2 = srdr_structure.elements.area * M2_TO_MM2
+    youngs_mpa = original_compression_youngs * PA_TO_MPA
     imperfection_ratio = np.zeros_like(original_compression_youngs)
     imperfection_ratio[is_strut] = (srdr_structure.elements.imperfection[is_strut]
                                      / srdr_structure.elements.free_length[is_strut])
@@ -109,10 +128,10 @@ def main_stiffness_reduction_dr(structure: PyTruss, loads_increment: np.ndarray 
     lam = np.ones_like(original_compression_youngs)
     ncr = np.ones_like(original_compression_youngs)
     lam[is_strut] = formulas.slenderness(
-        L0_mm[is_strut], srdr_structure.elements.area[is_strut], srdr_structure.elements.inertia[is_strut]
+        L0_mm[is_strut], area_mm2[is_strut], srdr_structure.elements.inertia[is_strut]
     )
     ncr[is_strut] = formulas.euler_load(
-        original_compression_youngs[is_strut], srdr_structure.elements.inertia[is_strut], L0_mm[is_strut]
+        youngs_mpa[is_strut], srdr_structure.elements.inertia[is_strut], L0_mm[is_strut]
     )
 
     # 2) First DR run assuming perfectly straight struts (Fig. 6, boxes 1-2)
@@ -140,6 +159,17 @@ def main_stiffness_reduction_dr(structure: PyTruss, loads_increment: np.ndarray 
             N_compression[in_compression], ncr[in_compression],
             imperfection_ratio[in_compression], lam[in_compression]
         )
+
+        # How far the ratio implied by the CURRENT force (raw_ratio) is from the ratio that was
+        # actually applied to produce that force (applied_ratio, before this iteration's
+        # update) - i.e. whether Kred/K is self-consistent yet. This is checked separately from
+        # the force-based convergence below (step 6): in a statically determinate structure (or
+        # any load path where a strut's force is largely fixed by equilibrium alone), the axial
+        # force barely changes with stiffness, so the force-only check can appear "converged"
+        # after a single bisection half-step even though applied_ratio is still far from its
+        # fixed point - which would silently under-report the stiffness loss (and displacement).
+        ratio_delta = np.max(np.abs(raw_ratio[in_compression] - applied_ratio[in_compression])) \
+            if np.any(in_compression) else 0.0
 
         # 8) Bisection: average the freshly computed ratio with the one applied in the previous
         # iteration, exploiting the monotonic force/stiffness relationship for stable convergence.
@@ -173,9 +203,31 @@ def main_stiffness_reduction_dr(structure: PyTruss, loads_increment: np.ndarray 
         previous_tension = current_state.elements.tension.copy()
 
         srdr_config.n_outer_iterations += 1
-        srdr_config.converged = delta <= srdr_config.force_tol
+        # bool(...): comparisons against numpy scalars are numpy.bool (numpy 2.x), which
+        # pythonnet's .As<bool>() on the C# side cannot convert to System.Boolean - cast to a
+        # native Python bool before it crosses the Python.NET boundary. Both the force AND the
+        # ratio must have settled (see ratio_delta above) - otherwise a structure whose strut
+        # force is insensitive to that strut's stiffness (e.g. statically determinate) would
+        # falsely report convergence after a single bisection half-step.
+        srdr_config.converged = bool(delta <= srdr_config.force_tol and ratio_delta <= STIFFNESS_RATIO_TOL)
 
-    return current_state
+    # 9) Second-order bending moment M = N*e_max and amplified mid-span deflection e_max at the
+    # converged state (Eq. 12-13 of [1]) - both 0 for cables and struts currently in tension,
+    # where the beam-column imperfection model doesn't apply. See formulas.amplified_deflection.
+    N_final = np.zeros_like(original_compression_youngs)
+    N_final[is_strut] = -current_state.elements.tension[is_strut]
+    in_compression_final = is_strut & (N_final > 0)
+
+    e0_mm = srdr_structure.elements.imperfection * 1e3
+    deflection_mm = np.zeros_like(original_compression_youngs)
+    deflection_mm[in_compression_final] = formulas.amplified_deflection(
+        N_final[in_compression_final], ncr[in_compression_final], e0_mm[in_compression_final]
+    )
+    deflection = deflection_mm * 1e-3  # [m]
+    moment = N_final * deflection  # [N.m]
+
+    updated_elements = current_state.elements.copy_and_update(moment=moment, deflection=deflection)
+    return PyTrussDR(current_state.nodes, updated_elements)
 
 
 def _fresh_dr_config(template: PyConfigDR = None) -> PyConfigDR:

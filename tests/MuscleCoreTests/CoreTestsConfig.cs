@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 using System;
@@ -53,7 +54,7 @@ namespace MuscleCoreTests
                     // get path to musclepy src directory from this Test application
                     string srcDir = Path.GetFullPath(Path.Combine(
                                                             Directory.GetCurrentDirectory(),
-                                                            "..", "..", "..", "..", "..", "src"));
+                                                            "..", "..", "..", "..", "..", "src", "MusclePy"));
 
                     return new PythonNETConfig(_anacondaPath, "base", _pythonDllName, srcDir);
 

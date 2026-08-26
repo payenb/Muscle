@@ -16,6 +16,7 @@
 
 # List of the contributors to the development of Muscle: see NOTICE file.
 # Description and complete License: see NOTICE file.
+# This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 
 import unittest
 import numpy as np
@@ -53,11 +54,23 @@ class TestSRDR_Simplex(unittest.TestCase):
             ])
         )
 
+        # area [m^2] and youngs [Pa]: real SI, matching exactly what
+        # MuscleApp.Converters.ElementsEncoder copies (unconverted) from Element.CS.Area /
+        # Element.Material.Ec/Et when building a structure from Grasshopper - NOT the mm^2/MPa
+        # convention used elsewhere in this test suite (e.g. test_dr_simplex), which DR's own
+        # EA/L stiffness happens to be invariant to, but SRDR's Euler-buckling calculation
+        # (Ncr = pi^2*E*I/L0^2, not scale-invariant the same way) is not. See
+        # musclepy.solvers.srdr.main.main_stiffness_reduction_dr for the local MPa/mm^2
+        # conversion it applies internally, assuming this same SI convention.
         area = np.ones(12)
-        area[0:3] = 364.4  # Struts area in mm^2
-        area[3:12] = 50.3  # Cables area in mm^2
+        area[0:3] = 364.4e-6  # Struts area, m^2 (364.4 mm^2)
+        area[3:12] = 50.3e-6  # Cables area, m^2 (50.3 mm^2)
 
-        # Hollow circular strut section: outside diameter 60mm, thickness 2mm (Table 1 of [1])
+        # Hollow circular strut section: outside diameter 60mm, thickness 2mm (Table 1 of [1]).
+        # Unlike area/youngs above, the `inertia` parameter passed to
+        # main_stiffness_reduction_dr is NOT part of PyElements/CoreElements at all - it is a
+        # separate argument that MuscleApp.Solvers.SRDR.SRDR already converts to [mm^4] before
+        # calling into musclepy, so it keeps that same mm^4 convention here.
         Ro, Ri = 30.0, 28.0
         strut_inertia = np.pi / 4 * (Ro ** 4 - Ri ** 4)  # mm^4
         self.inertia = np.zeros(12)
@@ -72,9 +85,9 @@ class TestSRDR_Simplex(unittest.TestCase):
             ]),
             area=area,
             youngs=np.array([
-                [70390, 0], [70390, 0], [70390, 0],
-                [0, 71750], [0, 71750], [0, 71750], [0, 71750], [0, 71750],
-                [0, 71750], [0, 71750], [0, 71750], [0, 71750]
+                [70390e6, 0], [70390e6, 0], [70390e6, 0],
+                [0, 71750e6], [0, 71750e6], [0, 71750e6], [0, 71750e6], [0, 71750e6],
+                [0, 71750e6], [0, 71750e6], [0, 71750e6], [0, 71750e6]
             ])
         )
 
@@ -145,6 +158,15 @@ class TestSRDR_Simplex(unittest.TestCase):
         strut_tension_srdr = srdr_result.elements.tension[0:3]
         self.assertFalse(np.allclose(strut_tension_plain, strut_tension_srdr, rtol=1e-3),
                           "Imperfect-strut tensions should differ from the perfect-strut result")
+
+        # Struts in compression should show a nonzero second-order moment/deflection; cables
+        # (indices 3-11) must stay at exactly 0 since the beam-column model doesn't apply to them.
+        self.assertFalse(np.any(np.isnan(srdr_result.elements.moment)))
+        self.assertFalse(np.any(np.isnan(srdr_result.elements.deflection)))
+        self.assertTrue(np.all(srdr_result.elements.deflection[0:3] > 0))
+        self.assertTrue(np.all(srdr_result.elements.moment[0:3] > 0))
+        np.testing.assert_array_equal(srdr_result.elements.moment[3:12], 0.0)
+        np.testing.assert_array_equal(srdr_result.elements.deflection[3:12], 0.0)
 
 
 if __name__ == '__main__':

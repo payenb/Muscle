@@ -16,6 +16,7 @@
 
 # List of the contributors to the development of Muscle: see NOTICE file.
 # Description and complete License: see NOTICE file.
+# This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 
 """
 Reference values for the aluminum strut used throughout the article are taken from:
@@ -99,6 +100,57 @@ class TestFormulasSRDR(unittest.TestCase):
         ncr = formulas.euler_load(self.youngs, self.inertia, self.L0)
         ratio = formulas.stiffness_reduction_factor(0.5 * ncr, ncr, 1 / 300, lam)
         self.assertAlmostEqual(ratio, 0.7372, places=3)
+
+    def test_stiffness_reduction_factor_stays_finite_at_or_beyond_ncr(self):
+        """N reaching or exceeding Ncr (e.g. an overloaded strut, or an intermediate,
+        not-yet-converged state of the outer bisection loop) must not produce NaN/inf: the
+        (1 - N/Ncr) term in chord_length_ratio()'s discriminant would otherwise blow up,
+        and a NaN stiffness ratio silently propagates into the inner DR run's Young's
+        modulus, which never converges (NaN comparisons are always False) and spins through
+        the full outer x inner iteration budget instead of failing fast - this hung
+        Grasshopper for several minutes under a heavy load in practice."""
+        lam = formulas.slenderness(self.L0, self.area, self.inertia)
+        ncr = formulas.euler_load(self.youngs, self.inertia, self.L0)
+        N_values = np.array([ncr, 1.5 * ncr, 10.0 * ncr])
+
+        ratios = formulas.stiffness_reduction_factor(N_values, np.full_like(N_values, ncr),
+                                                       np.full_like(N_values, 1 / 300), np.full_like(N_values, lam))
+
+        self.assertTrue(np.all(np.isfinite(ratios)))
+        self.assertTrue(np.all(ratios > 0))
+        self.assertTrue(np.all(ratios <= 1.0))
+
+    def test_amplified_deflection_matches_hand_calc_at_half_ncr(self):
+        """Pinned regression value at N = 0.5*Ncr: e_max = e0/(1-N/Ncr) = 2*e0."""
+        ncr = formulas.euler_load(self.youngs, self.inertia, self.L0)
+        e0 = self.L0 / 300
+        e_max = formulas.amplified_deflection(0.5 * ncr, ncr, e0)
+        self.assertAlmostEqual(e_max, 2 * e0, places=6)
+
+    def test_amplified_deflection_equals_e0_at_zero_force(self):
+        """No axial load -> no amplification: e_max = e0."""
+        ncr = formulas.euler_load(self.youngs, self.inertia, self.L0)
+        e0 = self.L0 / 300
+        self.assertAlmostEqual(formulas.amplified_deflection(0.0, ncr, e0), e0, places=6)
+
+    def test_amplified_deflection_stays_finite_at_or_beyond_ncr(self):
+        """N reaching or exceeding Ncr must not produce inf/NaN (N/Ncr is capped at 0.999)."""
+        ncr = formulas.euler_load(self.youngs, self.inertia, self.L0)
+        e0 = self.L0 / 300
+        N_values = np.array([ncr, 1.5 * ncr, 10.0 * ncr])
+        e_max = formulas.amplified_deflection(N_values, np.full_like(N_values, ncr), np.full_like(N_values, e0))
+
+        self.assertTrue(np.all(np.isfinite(e_max)))
+        self.assertTrue(np.all(e_max >= e0))
+
+    def test_amplified_deflection_is_monotonically_increasing(self):
+        """e_max(N) must increase monotonically with N, consistent with a strut bowing out
+        more as it approaches its buckling load."""
+        ncr = formulas.euler_load(self.youngs, self.inertia, self.L0)
+        e0 = self.L0 / 300
+        N_values = np.linspace(0.0, 0.99 * ncr, 200)
+        e_max = formulas.amplified_deflection(N_values, np.full_like(N_values, ncr), np.full_like(N_values, e0))
+        self.assertTrue(np.all(np.diff(e_max) > 0))
 
     def test_stiffness_reduction_factor_stays_finite_and_below_one_at_zero_force(self):
         """A strut with an initial bow is never quite as stiff as a perfectly straight one,
