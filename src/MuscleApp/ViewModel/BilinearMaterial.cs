@@ -1,4 +1,4 @@
-﻿// Muscle
+// Muscle
 
 // Copyright <2015-2025> <Université catholique de Louvain (UCLouvain)>
 
@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 using System;
@@ -72,6 +73,22 @@ namespace MuscleApp.ViewModel
         /// Material density in kg/m^3.
         /// </summary>
         public double Rho { set; get; }
+
+        /// <summary>
+        /// Poisson's ratio [-]. Used only by the Beam FE model (torsional stiffness GJ/L) -
+        /// the axial-only Element/Truss/DR/SRDR pipeline never reads this. Defaults to 0.3
+        /// (steel/aluminum) since Muscle 2.0 does not currently expose it to the user.
+        /// </summary>
+        public double Poisson { set; get; } = 0.3;
+
+        /// <summary>
+        /// Shear modulus in N/m^2, derived from the compressive Young modulus Ec and Poisson's
+        /// ratio: G = Ec / (2*(1+Poisson)). Used only by the Beam FE model.
+        /// </summary>
+        public double G
+        {
+            get { return Ec / (2.0 * (1.0 + Poisson)); }
+        }
 
         public bool IsValid
         {
@@ -151,6 +168,7 @@ namespace MuscleApp.ViewModel
             Ec = aMaterial.Ec;     // N/m^2
             Et = aMaterial.Et;     // N/m^2
             Rho = aMaterial.Rho;         // kg/m^3
+            Poisson = aMaterial.Poisson;
 
             Alpha = aMaterial.Alpha;
         }

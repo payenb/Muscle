@@ -16,6 +16,7 @@
 
 // List of the contributors to the development of Muscle: see NOTICE file.
 // Description and complete License: see NOTICE file.
+// This fork (Muscle 2.0): modified by Basile Payen (UCLouvain) with Claude (Anthropic).
 // ------------------------------------------------------------------------------------------------------------
 
 using System;
@@ -145,6 +146,26 @@ namespace Muscle.Converters
         }
 
         #endregion Element Conversion
+
+        #region Beam Conversion (BEAM FE MODEL ONLY - not used by the axial Element/Truss pipeline above)
+
+        /// <summary>
+        /// Extracts BeamElement objects from a Grasshopper data tree
+        /// </summary>
+        public static List<BeamElement> ToBeamElementList(GH_Structure<IGH_Goo> tree)
+        {
+            return FromTree<BeamElement, GH_BeamElement>(tree);
+        }
+
+        /// <summary>
+        /// Extracts BeamSupport objects from a Grasshopper data tree
+        /// </summary>
+        public static List<BeamSupport> ToBeamSupportList(GH_Structure<IGH_Goo> tree)
+        {
+            return FromTree<BeamSupport, GH_BeamSupport>(tree);
+        }
+
+        #endregion Beam Conversion
 
         #region Point Conversion
 
