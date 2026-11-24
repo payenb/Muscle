@@ -90,8 +90,8 @@ namespace MuscleCoreTests.Solvers
                 nodes: nodes,
                 type: new int[] { -1, -1 },  // Two struts
                 endNodes: new int[,] { { 0, 1 }, { 1, 2 } },  // Element 0: 0->1, Element 1: 1->2
-                area: new double[] { 2500.0, 2500.0 },   // 2500 mm² area
-                youngs: new double[,] { { 10000.0, 10000.0 }, { 10000.0, 10000.0 } },  // 10000 MPa Young's modulus
+                area: new double[] { 2500e-6, 2500e-6 },   // 2500 mm² area, in m²
+                youngs: new double[,] { { 10e9, 10e9 }, { 10e9, 10e9 } },  // 10000 MPa Young's modulus, in Pa
                 freeLength: new double[] { Math.Sqrt(2), Math.Sqrt(2) }  // Initial free length matching the initial geometry
             );
 

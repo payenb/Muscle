@@ -54,25 +54,16 @@ class TestSRDR_Simplex(unittest.TestCase):
             ])
         )
 
-        # area [m^2] and youngs [Pa]: real SI, matching exactly what
-        # MuscleApp.Converters.ElementsEncoder copies (unconverted) from Element.CS.Area /
-        # Element.Material.Ec/Et when building a structure from Grasshopper - NOT the mm^2/MPa
-        # convention used elsewhere in this test suite (e.g. test_dr_simplex), which DR's own
-        # EA/L stiffness happens to be invariant to, but SRDR's Euler-buckling calculation
-        # (Ncr = pi^2*E*I/L0^2, not scale-invariant the same way) is not. See
-        # musclepy.solvers.srdr.main.main_stiffness_reduction_dr for the local MPa/mm^2
-        # conversion it applies internally, assuming this same SI convention.
+        # area [m^2], youngs [Pa] and inertia [m^4]: SI, like every musclepy input, and
+        # exactly what MuscleApp sends unconverted from Element.CS.Area, Element.Material.Ec/Et
+        # and Element.CS.Inertia.
         area = np.ones(12)
         area[0:3] = 364.4e-6  # Struts area, m^2 (364.4 mm^2)
         area[3:12] = 50.3e-6  # Cables area, m^2 (50.3 mm^2)
 
         # Hollow circular strut section: outside diameter 60mm, thickness 2mm (Table 1 of [1]).
-        # Unlike area/youngs above, the `inertia` parameter passed to
-        # main_stiffness_reduction_dr is NOT part of PyElements/CoreElements at all - it is a
-        # separate argument that MuscleApp.Solvers.SRDR.SRDR already converts to [mm^4] before
-        # calling into musclepy, so it keeps that same mm^4 convention here.
-        Ro, Ri = 30.0, 28.0
-        strut_inertia = np.pi / 4 * (Ro ** 4 - Ri ** 4)  # mm^4
+        Ro, Ri = 30e-3, 28e-3  # [m]
+        strut_inertia = np.pi / 4 * (Ro ** 4 - Ri ** 4)  # [m^4]
         self.inertia = np.zeros(12)
         self.inertia[0:3] = strut_inertia
 

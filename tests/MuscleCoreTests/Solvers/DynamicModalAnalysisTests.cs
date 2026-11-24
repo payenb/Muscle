@@ -118,35 +118,35 @@ namespace MuscleCoreTests.Solvers
             elementsType[1] = -1;
             elementsType[2] = -1;
             
-            // Set Young moduli [in compression, in tension] MPa
+            // Set Young moduli [in compression, in tension] in Pa (given in MPa)
             double[,] elementsE = new double[12, 2];
             // Struts (can only be in compression)
             for (int i = 0; i < 3; i++)
             {
-                elementsE[i, 0] = 70390;
+                elementsE[i, 0] = 70390e6;
                 elementsE[i, 1] = 0;
             }
             // Cables (can only be in tension)
             for (int i = 3; i < 9; i++)
             {
                 elementsE[i, 0] = 0;
-                elementsE[i, 1] = 71750;
+                elementsE[i, 1] = 71750e6;
             }
             for (int i = 9; i < 12; i++)
             {
                 elementsE[i, 0] = 0;
-                elementsE[i, 1] = 72190;
+                elementsE[i, 1] = 72190e6;
             }
             
-            // Set cross-sectional areas [mm²]
+            // Set cross-sectional areas [m²]
             double[] elementsA = new double[12];
             for (int i = 0; i < 3; i++)
             {
-                elementsA[i] = 364.4; // struts
+                elementsA[i] = 364.4e-6; // struts (364.4 mm²)
             }
             for (int i = 3; i < 12; i++)
             {
-                elementsA[i] = 50.3; // cables
+                elementsA[i] = 50.3e-6; // cables (50.3 mm²)
             }
             
             var elements = new CoreElements(nodes, elementsType, endNodes, elementsA , elementsE);

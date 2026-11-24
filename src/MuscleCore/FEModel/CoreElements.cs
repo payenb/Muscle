@@ -73,12 +73,12 @@ namespace MuscleCore.FEModel
         public int Count { get; set; }
 
         /// <summary>
-        /// [MPa] - shape (elements_count, 2) - Young's moduli in compression and tension
+        /// [Pa] - shape (elements_count, 2) - Young's moduli in compression and tension
         /// </summary>
         public double[,]? Youngs { get; set; }
 
         /// <summary>
-        /// [mm²] - shape (elements_count,) - Cross-sectional area of the elements
+        /// [m²] - shape (elements_count,) - Cross-sectional area of the elements
         /// </summary>
         public double[]? Area { get; set; }
 
@@ -117,8 +117,8 @@ namespace MuscleCore.FEModel
         /// <param name="nodes">CoreNodes instance containing node data</param>
         /// <param name="type">[-] - shape (elements_count,) - Element types (-1: strut, 1: cable)</param>
         /// <param name="endNodes">[-] - shape (elements_count, 2) - Element-node connectivity indices</param>
-        /// <param name="area">[mm²] - shape (elements_count,) - Cross-section area of elements</param>
-        /// <param name="youngs">[MPa] - shape (elements_count, 2) - Young's moduli for compression and tension</param>
+        /// <param name="area">[m²] - shape (elements_count,) - Cross-section area of elements</param>
+        /// <param name="youngs">[Pa] - shape (elements_count, 2) - Young's moduli for compression and tension</param>
         /// <param name="freeLength">[m] - shape (elements_count,) - Free length of the elements</param>
         /// <param name="tension">[N] - shape (elements_count,) - Axial force (positive in tension)</param>
         /// <param name="moment">[N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max (SRDR results only)</param>

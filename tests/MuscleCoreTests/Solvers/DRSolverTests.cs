@@ -87,13 +87,13 @@ namespace MuscleCoreTests.Solvers
             );
 
             // Create elements with the same properties as in the Python test
-            double cableArea = Math.PI * Math.Pow(8.0 / 2.0, 2);  // 8mm diameter cable area in mm²
+            double cableArea = Math.PI * Math.Pow(8e-3 / 2.0, 2);  // [m²] 8mm diameter cable area (50.26 mm²)
             var elements = new CoreElements(
                 nodes: nodes,
                 type: new int[] { 1, 1 },  // Two cables
                 endNodes: new int[,] { { 0, 1 }, { 1, 2 } },  // Element 0: 0->1, Element 1: 1->2
-                area: new double[] { cableArea, cableArea },  // 50.26 mm² area
-                youngs: new double[,] { { 70000.0, 70000.0 }, { 70000.0, 70000.0 } }  // 70000 MPa Young's modulus
+                area: new double[] { cableArea, cableArea },  // 50.26 mm² area, in m²
+                youngs: new double[,] { { 70e9, 70e9 }, { 70e9, 70e9 } }  // 70000 MPa Young's modulus, in Pa
             );
 
             // Create structure

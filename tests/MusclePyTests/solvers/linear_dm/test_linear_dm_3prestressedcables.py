@@ -55,8 +55,8 @@ class TestLinearDM_3PrestressedCables(unittest.TestCase):
         
         # Create elements (all cables)
         type=np.array([1, 1, 1])  # All elements are cables (type=1)
-        area = np.ones(3) * 50.26 #[mm²]
-        youngs = np.ones((3,2)) * 70e3 #70 GPa Young's modulus
+        area = np.ones(3) * 50.26e-6 #[m²] (50.26 mm²)
+        youngs = np.ones((3,2)) * 70e9 #[Pa] 70 GPa Young's modulus
         youngs[:, 0] = 0 #tension only elements -> no stiffness in compression
 
         self.elements = PyElements(
@@ -83,7 +83,7 @@ class TestLinearDM_3PrestressedCables(unittest.TestCase):
         """Test the PrestressIncrement class with the cable structure."""
         
         # Expected prestress force magnitude in cable 1: EA/L * dl
-        # EA = 50.26 * 70e3 = 3518.2 kN
+        # EA = 50.26e-6 m² * 70e9 Pa = 3518.2 kN
         # L = 2.0-0.007984 m (free length of cable 1)
         # -> Expected force ≈ 14100.945 N in cable 1 assuming all nodes are fixed
 
@@ -119,7 +119,7 @@ class TestLinearDM_3PrestressedCables(unittest.TestCase):
         
         
         # Expected prestress force magnitude in cables 1&2: EA/L * dl
-        # EA = 50.26 * 70e3 = 3518.2 kN
+        # EA = 50.26e-6 m² * 70e9 Pa = 3518.2 kN
         # L = 4.0 -0.007984  m (free length of cables 1 and 2)
         # -> Expected force ≈ 7036.37 N in both cables
 

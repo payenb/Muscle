@@ -30,11 +30,10 @@ half-sine shape, as derived in:
     Journal of Structural Engineering, 2026, 152(5): 04026039.
     DOI: 10.1061/JSENDH.STENG-15452.
 
-Units: unlike the rest of MusclePy (which mixes mm^2 for area with meters for
-lengths), the functions in this module are self-consistent and expect ALL lengths
-(L0, e0) in [mm], areas in [mm^2], inertia in [mm^4], Young's modulus in [MPa],
-and forces in [N]. Callers that source lengths from PyElements (which stores
-free_length in meters) must convert to mm before calling these functions.
+Units: SI, like the rest of musclepy: lengths (L0, e0) in [m], areas in [m^2],
+inertia in [m^4], Young's modulus in [Pa], forces in [N]. The formulas only need a
+consistent unit system: slenderness and Kred/K are dimensionless, Ncr comes out in
+the force unit of E*I/L0^2 and e_max in the unit of e0.
 """
 
 import numpy as np
@@ -44,9 +43,9 @@ def slenderness(L0: np.ndarray, area: np.ndarray, inertia: np.ndarray) -> np.nda
     """[-] Strut slenderness ratio: lambda = L0 * sqrt(A/I).
 
     Args:
-        L0: [mm] Initial chord length between strut supports
-        area: [mm^2] Cross-section area
-        inertia: [mm^4] Second moment of area (moment of inertia)
+        L0: [m] Initial chord length between strut supports
+        area: [m^2] Cross-section area
+        inertia: [m^4] Second moment of area (moment of inertia)
 
     Returns:
         [-] Slenderness ratio lambda
@@ -58,9 +57,9 @@ def euler_load(youngs: np.ndarray, inertia: np.ndarray, L0: np.ndarray) -> np.nd
     """[N] Euler critical buckling load: Ncr = pi^2 * E * I / L0^2.
 
     Args:
-        youngs: [MPa] Young's modulus (compression)
-        inertia: [mm^4] Second moment of area (moment of inertia)
-        L0: [mm] Initial chord length between strut supports
+        youngs: [Pa] Young's modulus (compression)
+        inertia: [m^4] Second moment of area (moment of inertia)
+        L0: [m] Initial chord length between strut supports
 
     Returns:
         [N] Euler critical load Ncr
@@ -120,10 +119,10 @@ def amplified_deflection(N: np.ndarray, ncr: np.ndarray, e0: np.ndarray) -> np.n
     Args:
         N: [N] Axial compressive force (positive for compression)
         ncr: [N] Euler critical load
-        e0: [mm] Initial imperfection amplitude (NOT the ratio e0/L0 - the absolute value)
+        e0: [m] Initial imperfection amplitude (NOT the ratio e0/L0 - the absolute value)
 
     Returns:
-        [mm] Amplified mid-span deflection e_max, capped at 1000*e0: N/Ncr is capped at 0.999
+        [m] Amplified mid-span deflection e_max, capped at 1000*e0: N/Ncr is capped at 0.999
         so e_max stays finite instead of diverging to infinity exactly at buckling (the correct
         physical limit, but not a usable numeric value) - a value near that cap already
         clearly signals a strut on the verge of buckling.

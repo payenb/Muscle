@@ -56,8 +56,8 @@ class TestNonlinearDM_PrestressedTightRope(unittest.TestCase):
             nodes=self.nodes,
             type=np.array([1, 1]),  # Two cables
             end_nodes=np.array([[0, 1], [1, 2]]),  # Element 0: 0->1, Element 1: 1->2
-            area=np.array([50.0, 50.0]),  # 50 mm² area
-            youngs=np.array([[100000.0, 100000.0], [100000.0, 100000.0]]),  # 100 GPa Young's modulus
+            area=np.array([50.0, 50.0]) * 1e-6,  # 50 mm² area, in m²
+            youngs=np.array([[100000.0, 100000.0], [100000.0, 100000.0]]) * 1e6,  # 100 GPa Young's modulus, in Pa
         )
         
         # Create structure

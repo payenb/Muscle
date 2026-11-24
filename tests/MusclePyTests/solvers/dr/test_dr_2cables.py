@@ -56,15 +56,15 @@ class TestDR_2Cables(unittest.TestCase):
         )
         
         # Create elements with prestress
-        cable_area = np.pi * (8 / 2) ** 2  # 8mm diameter cable area in mm²
+        cable_area = np.pi * (8e-3 / 2) ** 2  # [m²] 8mm diameter cable area (50.26 mm²)
         self.cable_area = cable_area
 
         self.elements = PyElements(
             nodes=self.nodes,
             type=np.array([1, 1]),  # Two cables
             end_nodes=np.array([[0, 1], [1, 2]]),  # Element 0: 0->1, Element 1: 1->2
-            area=np.array([cable_area, cable_area]),  # 50.26 mm² area
-            youngs=np.array([[70000.0, 70000.0], [70000.0, 70000.0]]),  # 70000 MPa Young's modulus
+            area=np.array([cable_area, cable_area]),  # 50.26 mm² area, in m²
+            youngs=np.array([[70000.0, 70000.0], [70000.0, 70000.0]]) * 1e6,  # 70000 MPa Young's modulus, in Pa
         )
         
         # Create structure
@@ -113,8 +113,8 @@ class TestDR_2Cables(unittest.TestCase):
         self.assertLess(self.config.n_time_step, self.config.max_time_step)
         self.assertLess(self.config.n_ke_reset, self.config.max_ke_reset)
         
-        # Expected tension: T = E*A*ΔL/L = 70000*50.26*0.001/1.999
-        expected_tension = 70000 * self.cable_area * 0.001 / 1.999 * np.ones(2)
+        # Expected tension: T = E*A*ΔL/L = 70e9 Pa * 50.26e-6 m² * 0.001 m / 1.999 m
+        expected_tension = 70000e6 * self.cable_area * 0.001 / 1.999 * np.ones(2)
         np.testing.assert_allclose(result.elements.tension, expected_tension, atol=1e-4)
         
         # Check final node position (should be at equilibrium with z=0)

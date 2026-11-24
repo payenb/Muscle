@@ -62,13 +62,13 @@ class TestDR_3SimpleCables(unittest.TestCase):
         )
         
         # Create elements with prestress in cable 0
-        cable_area = np.pi * (8 / 2) ** 2  # 8mm diameter cable area in mm²
+        cable_area = np.pi * (8e-3 / 2) ** 2  # [m²] 8mm diameter cable area (50.26 mm²)
         self.elements = PyElements(
             nodes=self.nodes,
             type=np.array([1, 1, 1]),  # Three cables
             end_nodes=np.array([[0, 3], [1, 3], [2, 3]]),  # Element connections
-            area=np.array([cable_area, cable_area, cable_area]),  # Area in mm²
-            youngs=np.array([[70000.0, 70000.0, 70000.0], [70000.0, 70000.0, 70000.0]]),  # 70000 MPa Young's modulus
+            area=np.array([cable_area, cable_area, cable_area]),  # Area in m²
+            youngs=np.array([[70000.0, 70000.0, 70000.0], [70000.0, 70000.0, 70000.0]]) * 1e6,  # 70000 MPa = 70e9 Pa Young's modulus
         )
         
         # Create structure
@@ -91,8 +91,8 @@ class TestDR_3SimpleCables(unittest.TestCase):
             nodes=self.nodes,
             type=self.elements.type,  # Three cables
             end_nodes=self.elements.end_nodes,  # Element connections
-            area=self.elements.area,  # Area in mm²
-            youngs=np.array([[0.0, 70000.0, 70000.0], [70000.0, 70000.0, 70000.0]])  # 70000 MPa Young's modulus, cable 0 withstands tension only
+            area=self.elements.area,  # Area in m²
+            youngs=np.array([[0.0, 70000.0, 70000.0], [70000.0, 70000.0, 70000.0]]) * 1e6  # 70000 MPa = 70e9 Pa Young's modulus, cable 0 withstands tension only
         )
         tension_only_structure = PyTruss(self.nodes, tension_only_elements)
 

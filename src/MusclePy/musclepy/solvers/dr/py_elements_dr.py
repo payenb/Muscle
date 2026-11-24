@@ -31,7 +31,7 @@ class PyElementsDR(PyElements):
     Attributes:
         All attributes from PyElements
         local_geometric_stiffness_matrices: List of local geometric stiffness matrices
-        inertia: [mm^4] - shape (elements_count,) - Second moment of area of elements
+        inertia: [m^4] - shape (elements_count,) - Second moment of area of elements
         imperfection: [m] - shape (elements_count,) - Initial imperfection amplitude e0 of elements
         moment: [N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max
         deflection: [m] - shape (elements_count,) - Amplified mid-span deflection e_max
@@ -60,11 +60,11 @@ class PyElementsDR(PyElements):
             elements_or_nodes: Either a PyElements instance or a PyNodes (or PyNodesDR) instance
             type: [-] - shape (elements_count,) - Type of elements (-1 for struts, 1 for cables)
             end_nodes: [-] - shape (elements_count, 2) - Indices of end nodes
-            area: [mm²] - shape (elements_count,) - Cross-section area of elements
-            youngs: [MPa] - shape (elements_count, 2) - Young's moduli for compression and tension
+            area: [m²] - shape (elements_count,) - Cross-section area of elements
+            youngs: [Pa] - shape (elements_count, 2) - Young's moduli for compression and tension
             free_length: [m] - shape (elements_count,) - Free length of elements
             tension: [N] - shape (elements_count,) - Current tension in elements
-            inertia: [mm^4] - shape (elements_count,) - Second moment of area of elements.
+            inertia: [m^4] - shape (elements_count,) - Second moment of area of elements.
                      Defaults to 0 (unused by plain DR).
             imperfection: [m] - shape (elements_count,) - Initial imperfection amplitude e0 of
                      elements. Defaults to 0 (unused by plain DR; musclepy.solvers.srdr applies
@@ -132,7 +132,7 @@ class PyElementsDR(PyElements):
 
     @property
     def inertia(self) -> np.ndarray:
-        """[mm^4] - shape (elements_count,) - Second moment of area (moment of inertia)"""
+        """[m^4] - shape (elements_count,) - Second moment of area (moment of inertia)"""
         return self._inertia
 
     @property
@@ -218,7 +218,7 @@ class PyElementsDR(PyElements):
             nodes: A PyNodes or PyNodesDR instance
             free_length: [m] - shape (elements_count,) - Free length of elements
             tension: [N] - shape (elements_count,) - Current tension in elements
-            youngs: [MPa] - shape (elements_count, 2) - Young's moduli for compression and tension.
+            youngs: [Pa] - shape (elements_count, 2) - Young's moduli for compression and tension.
                     Needed by musclepy.solvers.srdr to apply the stiffness reduction factor
                     Kred/K to the compression Young's modulus between successive DR runs.
             moment: [N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max.

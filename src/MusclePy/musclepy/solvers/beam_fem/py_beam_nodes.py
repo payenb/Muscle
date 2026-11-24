@@ -29,9 +29,8 @@ class PyBeamNodes:
     PyNodes' 3 translational DOF only. DOF order per node is [Tx, Ty, Tz, Rx, Ry, Rz],
     matching MuscleApp.ViewModel.BeamNode and the thesis's Load_control.py convention.
 
-    All units are SI throughout (m, Pa, N, N.m, rad) - deliberately, since musclepy.solvers.srdr
-    previously had a bug from mixing mm²/MPa in an internal formula while the rest of the
-    pipeline used m²/Pa; this module avoids that class of bug entirely by never converting.
+    All units are SI throughout (m, Pa, N, N.m, rad), like the rest of musclepy (see the
+    package docstring): no unit is ever converted here.
 
     Array inputs are coerced via musclepy.solvers.beam_fem._marshal_utils.to_2d_array, which
     handles both raw C# arrays (2D bool arrays in particular - see that module's docstring

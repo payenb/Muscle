@@ -76,7 +76,7 @@ class TestSVDSimplex(unittest.TestCase):
         elements_type = np.ones(12)
         elements_type[[0, 1, 2]] = -1  # struts
 
-        # Set Young moduli [in compression, in tension] MPa
+        # Set Young moduli [in compression, in tension], given in MPa and converted to Pa
         # Struts can only be in compression and cables only in tension
         elementsE = np.array([[70390, 0],
                               [70390, 0],
@@ -89,12 +89,12 @@ class TestSVDSimplex(unittest.TestCase):
                               [0, 71750],
                               [0, 72190],
                               [0, 72190],
-                              [0, 72190]])  
+                              [0, 72190]]) * 1e6  # MPa -> Pa
 
-        # Set cross-sectional areas [mm²]
+        # Set cross-sectional areas [m²]
         elementsA = np.ones(12)
-        elementsA[0:3] = 364.4 # struts 
-        elementsA[3:12] = 50.3 # cables
+        elementsA[0:3] = 364.4e-6 # struts (364.4 mm²)
+        elementsA[3:12] = 50.3e-6 # cables (50.3 mm²)
 
         elements = PyElements(nodes=nodes, end_nodes=end_nodes, type=elements_type, youngs=elementsE, area=elementsA)
         

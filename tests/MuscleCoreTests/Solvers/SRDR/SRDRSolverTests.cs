@@ -60,12 +60,11 @@ namespace MuscleCoreTests.Solvers.SRDR
             PythonNETManager.ShutDown();
         }
 
-        // Real SI, matching exactly what MuscleApp.Converters.ElementsEncoder copies
-        // (unconverted) from Element.CS.Area [m^2] / Element.Material.Ec [Pa] when building a
-        // structure from Grasshopper. DR's own EA/L is invariant to any consistent rescaling of
-        // area+youngs, but SRDR's Euler-buckling calculation is not - see
-        // musclepy.solvers.srdr.main.main_stiffness_reduction_dr.
+        // SI, like everything musclepy receives: MuscleApp copies Element.CS.Area [m^2],
+        // Element.Material.Ec [Pa] and Element.CS.Inertia [m^4] unconverted. The data below are
+        // written in mm and MPa for readability and converted once here.
         private const double MM2_TO_M2 = 1e-6;
+        private const double MM4_TO_M4 = 1e-12;
         private const double MPA_TO_PA = 1e6;
 
         private static CoreTruss BuildSimplex(double strutYoungsPa = 70390 * MPA_TO_PA, double strutAreaM2 = 364.4 * MM2_TO_M2)
@@ -116,9 +115,10 @@ namespace MuscleCoreTests.Solvers.SRDR
             return new CoreTruss(nodes, elements);
         }
 
+        /// <summary>[m^4] Inertia of the 3 simplex struts (hollow circular, radii Ro and Ri in mm), 0 for the cables.</summary>
         private static double[] Inertia(double Ro = 30.0, double Ri = 28.0)
         {
-            double strutInertia = Math.PI / 4 * (Math.Pow(Ro, 4) - Math.Pow(Ri, 4));
+            double strutInertia = Math.PI / 4 * (Math.Pow(Ro, 4) - Math.Pow(Ri, 4)) * MM4_TO_M4;
             return new double[] { strutInertia, strutInertia, strutInertia, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         }
 
@@ -211,7 +211,7 @@ namespace MuscleCoreTests.Solvers.SRDR
                 }
             );
 
-            double Ro = 30.0, Ri = 28.0; // mm - only for Inertia() below, which expects mm^4
+            double Ro = 30.0, Ri = 28.0; // mm
             double strutArea = CircularHollowArea(Ro, Ri) * MM2_TO_M2; // m^2
             var elements = new CoreElements(
                 nodes: nodes,
@@ -232,7 +232,7 @@ namespace MuscleCoreTests.Solvers.SRDR
             var drConfig = new CoreConfigDR(); // production defaults, nothing else connected
             var srdrConfig = new CoreConfigSRDR(); // production defaults
 
-            double singleStrutInertia = Math.PI / 4 * (Math.Pow(Ro, 4) - Math.Pow(Ri, 4));
+            double singleStrutInertia = Math.PI / 4 * (Math.Pow(Ro, 4) - Math.Pow(Ri, 4)) * MM4_TO_M4; // m^4
             var result = StiffnessReductionDynamicRelaxation.Solve(
                 structure, loads, deltaFreeLength, drConfig, srdrConfig, new double[] { singleStrutInertia }, null);
 
@@ -263,7 +263,7 @@ namespace MuscleCoreTests.Solvers.SRDR
                 }
             );
 
-            double Ro = 30.0, Ri = 28.0; // mm - only for the inertia parameter below, which expects mm^4
+            double Ro = 30.0, Ri = 28.0; // mm
             double strutArea = CircularHollowArea(Ro, Ri) * MM2_TO_M2; // m^2
             var elements = new CoreElements(
                 nodes: nodes,
@@ -281,7 +281,7 @@ namespace MuscleCoreTests.Solvers.SRDR
 
             var drConfig = new CoreConfigDR();
             var srdrConfig = new CoreConfigSRDR();
-            double strutInertia = Math.PI / 4 * (Math.Pow(Ro, 4) - Math.Pow(Ri, 4));
+            double strutInertia = Math.PI / 4 * (Math.Pow(Ro, 4) - Math.Pow(Ri, 4)) * MM4_TO_M4; // m^4
 
             // Plain DR baseline
             var drResult = DynamicRelaxation.Solve(structure, loads, deltaFreeLength, new CoreConfigDR());

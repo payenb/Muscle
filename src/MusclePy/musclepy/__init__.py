@@ -20,6 +20,11 @@
 
 """
 MusclePy is a Python package for structural analysis developed by Université catholique de Louvain (UCLouvain). It focuses on the design, analysis, and optimization of tensegrity, tension-based, and truss-like structures.
+
+Units: every input and output of musclepy is SI - lengths and displacements [m], areas [m²],
+second moments of area [m⁴], Young's moduli and stresses [Pa], forces [N], moments [N.m],
+masses [kg], frequencies [Hz]. musclepy never converts units. The conversion to the units
+shown to the user (kN, MPa, mm...) is done once, by the Grasshopper components.
 """
 
 # Define version first

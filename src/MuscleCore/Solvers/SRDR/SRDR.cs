@@ -41,7 +41,7 @@ namespace MuscleCore.Solvers
         /// <param name="freeLengthVariation">[m] - shape (elements.count,) - free length variation to apply</param>
         /// <param name="drConfig">Configuration used as a template for every inner Dynamic Relaxation run</param>
         /// <param name="srdrConfig">Configuration for the outer Stiffness-Reduction loop</param>
-        /// <param name="inertia">[mm^4] - shape (elements.count,) - Second moment of area of elements (struts)</param>
+        /// <param name="inertia">[m^4] - shape (elements.count,) - Second moment of area of elements (struts)</param>
         /// <param name="imperfection">[m] - shape (elements.count,) - Initial imperfection amplitude e0 of elements
         /// (struts). Pass null to let musclepy default to free_length/300 (Eurocode 9) for every element.</param>
         /// <returns>Updated CoreTruss with incremented state</returns>

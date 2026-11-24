@@ -73,7 +73,7 @@ def main_stiffness_reduction_dr(structure: PyTruss, loads_increment: np.ndarray 
                    the same settings is created at each outer iteration, so its counters
                    are not meaningful here; see srdr_config.n_outer_iterations instead)
         srdr_config: Configuration for the outer Stiffness-Reduction loop
-        inertia: [mm^4] - shape (elements_count,) - Second moment of area of elements (struts)
+        inertia: [m^4] - shape (elements_count,) - Second moment of area of elements (struts)
         imperfection: [m] - shape (elements_count,) - Initial imperfection amplitude e0 of
                       elements (struts). Defaults to free_length * DEFAULT_IMPERFECTION_RATIO
                       (Eurocode 9's L0/300) for every element if not provided.
@@ -105,33 +105,20 @@ def main_stiffness_reduction_dr(structure: PyTruss, loads_increment: np.ndarray 
     # to 0.
     original_compression_youngs = srdr_structure.elements.youngs[:, 0].astype(float).copy()
 
-    # Precompute the (constant) geometric properties needed by the formulas, converted to
-    # [mm]/[mm^2]/[MPa] to stay consistent with musclepy.solvers.srdr.formulas (see its module
-    # docstring). free_length is [m], a genuine musclepy-wide convention. area and youngs,
-    # however, arrive here exactly as MuscleApp.Converters.ElementsEncoder copied them from
-    # Element.CS.Area [m^2] and Element.Material.Ec/Et [Pa] - real SI, with NO mm/MPa
-    # conversion applied anywhere upstream (DR's own EA/L stiffness is invariant to any
-    # consistent area/youngs rescaling, so this was never an issue there, only here where
-    # Ncr = pi^2*E*I/L0^2 and lambda = L0*sqrt(A/I) are not scale-invariant the same way).
-    # inertia is the one exception already in the right unit: it arrives as an explicit,
-    # separate parameter that the caller (MuscleApp.Solvers.SRDR.SRDR) already converts to
-    # [mm^4], since it isn't part of CoreElements/PyElements at all.
-    M2_TO_MM2 = 1e6
-    PA_TO_MPA = 1e-6
-    L0_mm = srdr_structure.elements.free_length * 1e3
-    area_mm2 = srdr_structure.elements.area * M2_TO_MM2
-    youngs_mpa = original_compression_youngs * PA_TO_MPA
+    # Precompute the (constant) geometric properties needed by the formulas. Everything is SI,
+    # like the rest of musclepy: free_length [m], area [m^2], youngs [Pa], inertia [m^4].
+    L0 = srdr_structure.elements.free_length
+    area = srdr_structure.elements.area
+    inertia = srdr_structure.elements.inertia
     imperfection_ratio = np.zeros_like(original_compression_youngs)
     imperfection_ratio[is_strut] = (srdr_structure.elements.imperfection[is_strut]
                                      / srdr_structure.elements.free_length[is_strut])
 
     lam = np.ones_like(original_compression_youngs)
     ncr = np.ones_like(original_compression_youngs)
-    lam[is_strut] = formulas.slenderness(
-        L0_mm[is_strut], area_mm2[is_strut], srdr_structure.elements.inertia[is_strut]
-    )
+    lam[is_strut] = formulas.slenderness(L0[is_strut], area[is_strut], inertia[is_strut])
     ncr[is_strut] = formulas.euler_load(
-        youngs_mpa[is_strut], srdr_structure.elements.inertia[is_strut], L0_mm[is_strut]
+        original_compression_youngs[is_strut], inertia[is_strut], L0[is_strut]
     )
 
     # 2) First DR run assuming perfectly straight struts (Fig. 6, boxes 1-2)
@@ -218,12 +205,11 @@ def main_stiffness_reduction_dr(structure: PyTruss, loads_increment: np.ndarray 
     N_final[is_strut] = -current_state.elements.tension[is_strut]
     in_compression_final = is_strut & (N_final > 0)
 
-    e0_mm = srdr_structure.elements.imperfection * 1e3
-    deflection_mm = np.zeros_like(original_compression_youngs)
-    deflection_mm[in_compression_final] = formulas.amplified_deflection(
-        N_final[in_compression_final], ncr[in_compression_final], e0_mm[in_compression_final]
+    e0 = srdr_structure.elements.imperfection  # [m]
+    deflection = np.zeros_like(original_compression_youngs)  # [m]
+    deflection[in_compression_final] = formulas.amplified_deflection(
+        N_final[in_compression_final], ncr[in_compression_final], e0[in_compression_final]
     )
-    deflection = deflection_mm * 1e-3  # [m]
     moment = N_final * deflection  # [N.m]
 
     updated_elements = current_state.elements.copy_and_update(moment=moment, deflection=deflection)

@@ -119,19 +119,18 @@ _SIMPLEX_END_NODES = np.array([
 _SIMPLEX_TYPE = np.array([-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
 
-def _simplex(si_units=False, youngs_cables=(71750,) * 9):
-    """Simplex truss. Default units: area mm², E MPa (DR convention of the unit tests).
-    si_units=True: area m², E Pa (what Grasshopper sends, required by SRDR)."""
+def _simplex(youngs_cables=(71750,) * 9):
+    """Simplex truss, SI units (data given in mm, mm² and MPa, converted here).
+    youngs_cables: cable Young's moduli in MPa."""
     nodes = PyNodes(initial_coordinates=_SIMPLEX_COORDINATES_MM * 1e-3, dof=_SIMPLEX_DOF)
     area = np.empty(12)
     area[0:3] = 364.4
     area[3:12] = 50.3
+    area = area * 1e-6  # mm² -> m²
     youngs = np.zeros((12, 2))
     youngs[0:3, 0] = 70390
     youngs[3:12, 1] = youngs_cables
-    if si_units:
-        area = area * 1e-6
-        youngs = youngs * 1e6
+    youngs = youngs * 1e6  # MPa -> Pa
     elements = PyElements(nodes=nodes, type=_SIMPLEX_TYPE, end_nodes=_SIMPLEX_END_NODES,
                           area=area, youngs=youngs)
     return PyTruss(nodes, elements)
@@ -165,12 +164,12 @@ def simplex_dr_cable_shortening():
 def simplex_srdr_default_imperfection():
     """Simplex, stiffness-reduction DR with the default imperfection L0/300 (Payen et al. 2026)."""
     loads, dl = _simplex_static_loading()
-    ro, ri = 30.0, 28.0
+    ro, ri = 30e-3, 28e-3  # m
     inertia = np.zeros(12)
-    inertia[0:3] = np.pi / 4 * (ro ** 4 - ri ** 4)  # mm^4, as sent by MuscleApp
+    inertia[0:3] = np.pi / 4 * (ro ** 4 - ri ** 4)  # m^4
     dr_config = _simplex_dr_config()
     srdr_config = PyConfigSRDR(force_tol=1.0, max_outer_iterations=100)
-    result = mp.main_stiffness_reduction_dr(structure=_simplex(si_units=True), loads_increment=loads,
+    result = mp.main_stiffness_reduction_dr(structure=_simplex(), loads_increment=loads,
                                             free_length_variation=dl, dr_config=dr_config,
                                             srdr_config=srdr_config, inertia=inertia)
     results = _truss_results(result)
@@ -252,7 +251,7 @@ def simplex_dynamic_consistent_mass():
 # Small cable structures (dynamic relaxation)
 # ----------------------------------------------------------------------------------------
 
-_CABLE_AREA = np.pi * (8 / 2) ** 2  # mm², 8 mm cable
+_CABLE_AREA = np.pi * (8e-3 / 2) ** 2  # m², 8 mm cable
 
 
 def _dr_cable_config(**kwargs):
@@ -267,7 +266,7 @@ def two_cables_dr_loading():
     nodes = PyNodes(initial_coordinates=np.array([[-2.0, 0, 0], [0, 0, 0], [2.0, 0, 0]]),
                     dof=np.array([[False] * 3, [True, False, True], [False] * 3]))
     elements = PyElements(nodes=nodes, type=np.array([1, 1]), end_nodes=np.array([[0, 1], [1, 2]]),
-                          area=np.full(2, _CABLE_AREA), youngs=np.full((2, 2), 70000.0))
+                          area=np.full(2, _CABLE_AREA), youngs=np.full((2, 2), 70e9))
     loads = np.zeros((3, 3))
     loads[1, 2] = 888.808
     config = _dr_cable_config()
@@ -277,10 +276,11 @@ def two_cables_dr_loading():
 
 
 def _three_cables(top_node, youngs):
+    """youngs in MPa."""
     nodes = PyNodes(initial_coordinates=np.array([top_node, [0.0, 0, 0], [4.0, 0, 0], [2.0, 0, 0]]),
                     dof=np.array([[False] * 3] * 3 + [[True] * 3]))
     elements = PyElements(nodes=nodes, type=np.array([1, 1, 1]), end_nodes=np.array([[0, 3], [1, 3], [2, 3]]),
-                          area=np.full(3, _CABLE_AREA), youngs=np.array(youngs, dtype=float))
+                          area=np.full(3, _CABLE_AREA), youngs=np.array(youngs, dtype=float) * 1e6)  # MPa -> Pa
     return PyTruss(nodes, elements)
 
 
@@ -324,7 +324,7 @@ def _two_bars():
     nodes = PyNodes(initial_coordinates=np.array([[0.0, 0, 0], [1.0, 0, 1.0], [2.0, 0, 0]]),
                     dof=np.array([[False] * 3, [True, False, True], [False] * 3]))
     elements = PyElements(nodes=nodes, type=np.array([-1, -1]), end_nodes=np.array([[0, 1], [1, 2]]),
-                          area=np.full(2, 2500.0), youngs=np.full((2, 2), 10000.0), tension=np.zeros(2))
+                          area=np.full(2, 2500e-6), youngs=np.full((2, 2), 10e9), tension=np.zeros(2))
     return PyTruss(nodes, elements)
 
 
@@ -352,7 +352,7 @@ def tight_rope_nonlinear_dm_3_stages():
     nodes = PyNodes(initial_coordinates=np.array([[0.0, 0, 0], [1.0, 0, 0], [2.0, 0, 0]]),
                     dof=np.array([[False] * 3, [True, False, True], [False] * 3]))
     elements = PyElements(nodes=nodes, type=np.array([1, 1]), end_nodes=np.array([[0, 1], [1, 2]]),
-                          area=np.full(2, 50.0), youngs=np.full((2, 2), 100000.0))
+                          area=np.full(2, 50e-6), youngs=np.full((2, 2), 100e9))
     prestressed = mp.main_linear_displacement_method(PyTruss(nodes, elements), np.zeros(9),
                                                      np.array([-3.984e-3, -3.984e-3]))
     loads1 = np.zeros(9)
@@ -382,10 +382,10 @@ def snelson_2x_localized_self_stress():
     elements_type = np.ones(11)
     elements_type[[4, 5, 9, 10]] = -1
     area = np.ones(11)
-    area[0:3] = 364.4
-    area[3:11] = 50.3
+    area[0:3] = 364.4e-6
+    area[3:11] = 50.3e-6
     elements = PyElements(nodes=nodes, end_nodes=end_nodes, type=elements_type,
-                          youngs=np.ones((11, 2)) * 70000, area=area)
+                          youngs=np.ones((11, 2)) * 70e9, area=area)
     structure = PyTruss(nodes, elements)
     svd = mp.main_singular_value_decomposition(structure)
     localized = mp.localize_self_stress_modes(structure, svd.Vs_T)

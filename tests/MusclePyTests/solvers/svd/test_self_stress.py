@@ -79,10 +79,10 @@ class TestSelfStressModes(unittest.TestCase):
         elements_type[[4, 5, 9, 10]] = -1  # struts
                 
         # Set element properties
-        elementsE = np.ones((11,2)) * 70000  # MPa
+        elementsE = np.ones((11,2)) * 70000e6  # [Pa] (70000 MPa)
         elementsA = np.ones(11)
-        elementsA[0:3] = 364.4 # struts 
-        elementsA[3:11] = 50.3 # cables
+        elementsA[0:3] = 364.4e-6 # struts [m²]
+        elementsA[3:11] = 50.3e-6 # cables [m²]
         
         # Create elements with types
         elements = PyElements(nodes=nodes, end_nodes=end_nodes, type=elements_type, youngs=elementsE, area=elementsA)

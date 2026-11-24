@@ -67,8 +67,8 @@ namespace Muscle.Components.Solvers
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("Beam Structure", "BStruct", "A beam structure on which the point forces and point moments will be applied.", GH_ParamAccess.item);
-            pManager.AddGenericParameter("Point Forces", "F (N)", "External point forces to apply on the beam structure.", GH_ParamAccess.tree);
-            pManager.AddGenericParameter("Point Moments", "M (N.m)", "BEAM-ONLY. External point moments to apply on the beam structure - reuses the same Point Load type as Point Forces, but the vector represents a moment.", GH_ParamAccess.tree);
+            pManager.AddGenericParameter("Point Forces", "F (kN)", "External point forces to apply on the beam structure (Point Load components, in kN).", GH_ParamAccess.tree);
+            pManager.AddGenericParameter("Point Moments", "M (kN.m)", "BEAM-ONLY. External point moments to apply on the beam structure - reuses the same Point Load type as Point Forces, but the vector represents a moment: a Point Load vector entered in kN is read as a moment in kN.m.", GH_ParamAccess.tree);
             pManager.AddNumberParameter("Delta t", "Dt (s)", "The time increment for the dynamic relaxation method.", GH_ParamAccess.item, defaultConfig.Dt);
             pManager.AddNumberParameter("Mass Amplification", "Ampl (/)", "Amplification factor for the fictitious masses in case of convergence issue.", GH_ParamAccess.item, defaultConfig.MassAmplFactor);
             pManager.AddIntegerParameter("Max Time Step", "max it (-)", "Maximum number of time increments before the solver aborts looking for the equilibrium.", GH_ParamAccess.item, defaultConfig.MaxTimeStep);

@@ -65,8 +65,8 @@ namespace Muscle.Components.Solvers
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("Beam Structure", "BStruct", "A beam structure on which the point forces and point moments will be applied.", GH_ParamAccess.item);
-            pManager.AddGenericParameter("Point Forces", "F (N)", "External point forces to apply on the beam structure.", GH_ParamAccess.tree);
-            pManager.AddGenericParameter("Point Moments", "M (N.m)", "BEAM-ONLY. External point moments to apply on the beam structure - reuses the same Point Load type as Point Forces, but the vector represents a moment.", GH_ParamAccess.tree);
+            pManager.AddGenericParameter("Point Forces", "F (kN)", "External point forces to apply on the beam structure (Point Load components, in kN).", GH_ParamAccess.tree);
+            pManager.AddGenericParameter("Point Moments", "M (kN.m)", "BEAM-ONLY. External point moments to apply on the beam structure - reuses the same Point Load type as Point Forces, but the vector represents a moment: a Point Load vector entered in kN is read as a moment in kN.m.", GH_ParamAccess.tree);
             pManager.AddNumberParameter("Force Tolerance", "tol (N)", "Residual norm below which equilibrium is considered reached.", GH_ParamAccess.item, defaultConfig.ToleranceForce);
             pManager.AddIntegerParameter("Max Iteration", "max it (-)", "Maximum Newton-Raphson iterations per load step.", GH_ParamAccess.item, defaultConfig.MaxIteration);
             pManager.AddIntegerParameter("Load Steps", "steps (-)", "Number of load steps (linear ramp from 0 to full load) - increase for strongly nonlinear cases.", GH_ParamAccess.item, defaultConfig.NbStep);

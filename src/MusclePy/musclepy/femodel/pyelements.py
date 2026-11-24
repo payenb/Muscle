@@ -32,8 +32,8 @@ class PyElements:
             - type: [-] Element types (-1: strut, 1: cable)
             - end_nodes: [-] Element-node connectivity indices
             - connectivity: [-] Element-node connectivity matrix
-            - area: [mm²] Cross-section area of elements
-            - youngs: [MPa] 2 Young's moduli per element defining the bilinear material. 
+            - area: [m²] Cross-section area of elements
+            - youngs: [Pa] 2 Young's moduli per element defining the bilinear material. 
         
         2. Mutable State:
             - nodes: PyNodes instance containing current node coordinates
@@ -41,7 +41,7 @@ class PyElements:
             - tension: [N] Axial force (positive in tension)
 
         3. State-Dependent (computed from current state):
-            - young: [MPa] Young's modulus based on current elastic elongation. 
+            - young: [Pa] Young's modulus based on current elastic elongation. 
             - flexibility: [m/N] = L/(EA), large value (1e6) if EA ≈ 0
             - current_length: [m] Based on current node coordinates
             - direction_cosines: [-] Unit vectors (x,y,z)            
@@ -51,10 +51,10 @@ class PyElements:
             nodes: PyNodes instance
             type: Element types, shape (elements_count,)
             end_nodes: Node indices, shape (elements_count, 2)
-            area: Cross-sections, shape (elements_count,)
-            youngs: Young's moduli, shape (elements_count, 2) : [[Ei_compression, Ei_tension],[Ej_compression, Ej_tension],...]
-            free_length: Free length of elements, shape (elements_count,)
-            tension: Axial forces, shape (elements_count,)
+            area: [m²] Cross-section areas, shape (elements_count,)
+            youngs: [Pa] Young's moduli, shape (elements_count, 2) : [[Ei_compression, Ei_tension],[Ej_compression, Ej_tension],...]
+            free_length: [m] Free length of elements, shape (elements_count,)
+            tension: [N] Axial forces, shape (elements_count,)
         """
         # Initialize immutable attributes (set once from C#)
         if not isinstance(nodes, PyNodes):
@@ -222,12 +222,12 @@ class PyElements:
 
     @property
     def area(self) -> np.ndarray:
-        """[mm²] - shape (elements_count,) - Cross-section area of elements"""
+        """[m²] - shape (elements_count,) - Cross-section area of elements"""
         return self._area
     
     @property
     def youngs(self) -> np.ndarray:
-        """[MPa] - shape (elements_count, 2) - Young's moduli in compression and tension"""
+        """[Pa] - shape (elements_count, 2) - Young's moduli in compression and tension"""
         return self._youngs
 
     @property
@@ -266,7 +266,7 @@ class PyElements:
     
     @property
     def young(self) -> np.ndarray:
-        """[MPa] - shape (elements_count,) - Current Young's modulus depending on tension state"""
+        """[Pa] - shape (elements_count,) - Current Young's modulus depending on tension state"""
         return self._get_current_young(self.elastic_elongation, self._youngs)
     
     @property
@@ -278,7 +278,7 @@ class PyElements:
         if self._count == 0:
             return np.array([], dtype=float)
             
-        ea = self.young * self.area  # [MPa * mm²] = [N]
+        ea = self.young * self.area  # [Pa * m²] = [N]
         mask = ea > 0  # If EA is zero, flexibility L/EA is infinite
         result = np.full(self._count, infinite_flexibility, dtype=float)  
         result[mask] = self.free_length[mask] / ea[mask]
@@ -295,10 +295,10 @@ class PyElements:
         
         Args:
             elongation: [m] Array of shape (elements_count,) containing positive values for tension, negative values for compression, or zero for unknown
-            youngs: [MPa] Array of shape (elements_count, 2) containing the young modulus values for the bilinear material in compression and tension
+            youngs: [Pa] Array of shape (elements_count, 2) containing the young modulus values for the bilinear material in compression and tension
             
         Returns:
-            [MPa] Array of shape (elements_count,) containing current Young's modulus
+            [Pa] Array of shape (elements_count,) containing current Young's modulus
         """
         assert elongation.shape[0] == self.count, f"Elongation shape {elongation.shape} does not match elements count {self.count}"
         young_compression = youngs[:, 0]

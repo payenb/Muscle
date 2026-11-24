@@ -56,8 +56,8 @@ class TestNonlinearDM_2BarsTruss(unittest.TestCase):
             nodes=self.nodes,
             type=np.array([-1, -1]),  # Two struts
             end_nodes=np.array([[0, 1], [1, 2]]),  # Element 0: 0->1, Element 1: 1->2
-            area=np.array([2500.0, 2500.0]),  # 2500 mm² area
-            youngs=np.array([[10000.0, 10000.0], [10000.0, 10000.0]]),  # 10000 MPa Young's modulus
+            area=np.array([2500.0, 2500.0]) * 1e-6,  # 2500 mm² area, in m²
+            youngs=np.array([[10000.0, 10000.0], [10000.0, 10000.0]]) * 1e6,  # 10000 MPa Young's modulus, in Pa
         )
         
         # Create structure

@@ -50,8 +50,8 @@ class TestPyElements(unittest.TestCase):
             nodes=self.nodes,
             type=np.array([-1, -1]),  # Two struts
             end_nodes=np.array([[0, 1], [1, 2]]),  # Element 0: 0->1, Element 1: 1->2
-            area=np.array([2500.0, 2500.0]),  # Cross-section area
-            youngs=np.array([[10000.0, 5000.0], [10000.0, 5000.0]]),  # Same Young's modulus [[compression, tension], [compression, tension],...]
+            area=np.array([2500.0, 2500.0]) * 1e-6,  # Cross-section area: 2500 mm² -> m²
+            youngs=np.array([[10000.0, 5000.0], [10000.0, 5000.0]]) * 1e6,  # MPa -> Pa. Same Young's modulus [[compression, tension], [compression, tension],...]
         )
 
     def test_initialization(self):
@@ -94,7 +94,7 @@ class TestPyElements(unittest.TestCase):
         tensed_elements = self.elements.copy_and_update(
             nodes=moved_nodes
         )
-        np.testing.assert_array_equal(tensed_elements.young, [5000.0, 5000.0])
+        np.testing.assert_array_equal(tensed_elements.young, [5000.0e6, 5000.0e6])
 
     def test_current_young_compression(self):
         """Test computation of current properties based on tension state."""
@@ -113,7 +113,7 @@ class TestPyElements(unittest.TestCase):
         compressed_elements = self.elements.copy_and_update(
             nodes=moved_nodes
         )
-        np.testing.assert_array_equal(compressed_elements.young, [10000.0, 10000.0])
+        np.testing.assert_array_equal(compressed_elements.young, [10000.0e6, 10000.0e6])
         
     def test_current_flexibility(self):
         """Test computation of flexibility (L/EA)."""
@@ -121,8 +121,8 @@ class TestPyElements(unittest.TestCase):
 
         # Expected flexibility = L/(E*A)
         L = np.sqrt(2.0)  # Length of each element
-        E = 10000.0  # maximum Young's modulus
-        A = 2500.0   # Area
+        E = 10000.0e6  # [Pa] maximum Young's modulus
+        A = 2500.0e-6   # [m²] Area
         expected_flexibility = L / (E * A)
         
         np.testing.assert_array_almost_equal(

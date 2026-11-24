@@ -62,8 +62,8 @@ class TestDR_Simplex(unittest.TestCase):
         # Struts can only be in compression, cables only in tension
 
         area = np.ones(12)
-        area[0:3] = 364.4  # Struts area in mm²
-        area[3:12] = 50.3  # Cables area in mm²
+        area[0:3] = 364.4e-6  # Struts area in m² (364.4 mm²)
+        area[3:12] = 50.3e-6  # Cables area in m² (50.3 mm²)
 
         self.elements = PyElements(
             nodes=self.nodes,
@@ -96,7 +96,7 @@ class TestDR_Simplex(unittest.TestCase):
                 [0, 71750],  # Cable 6
                 [0, 71750],  # Cable 7
                 [0, 71750]   # Cable 8
-            ])
+            ]) * 1e6  # MPa -> Pa
         )
         
         # Create structure

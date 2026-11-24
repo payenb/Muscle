@@ -34,11 +34,11 @@ from musclepy.solvers.srdr import formulas
 class TestFormulasSRDR(unittest.TestCase):
     def setUp(self):
         """Aluminum strut from Table 1 of the article: hollow circular section,
-        outside diameter 60mm, thickness 2mm, E=70390 MPa, L0=2999.8mm."""
-        E = 70390.0
-        D = 60.0
-        t = 2.0
-        self.L0 = 2999.8
+        outside diameter 60mm, thickness 2mm, E=70390 MPa, L0=2999.8mm. SI units, like musclepy."""
+        E = 70390e6  # [Pa]
+        D = 60e-3  # [m]
+        t = 2e-3  # [m]
+        self.L0 = 2.9998  # [m]
         Ro, Ri = D / 2, D / 2 - t
         self.area = np.pi * (Ro ** 2 - Ri ** 2)
         self.inertia = np.pi / 4 * (Ro ** 4 - Ri ** 4)

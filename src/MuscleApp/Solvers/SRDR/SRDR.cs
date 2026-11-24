@@ -30,11 +30,6 @@ namespace MuscleApp.Solvers
     public static class StiffnessReductionDynamicRelaxation
     {
         /// <summary>
-        /// Conversion factor from [m^4] (Element.CS.Inertia) to [mm^4] (expected by musclepy.solvers.srdr).
-        /// </summary>
-        private const double M4_TO_MM4 = 1e12;
-
-        /// <summary>
         /// Solve the Stiffness-Reduction Dynamic Relaxation method for a structure with
         /// incremental loads and prestress (free length changes), accounting for the loss of
         /// axial stiffness of struts due to their initial geometric imperfection.
@@ -57,10 +52,11 @@ namespace MuscleApp.Solvers
             // Create a load increment array by adding up all point loads for each node.
             double[] loadsIncrement = PointLoadEncoder.AddsUpAllPointLoads(pointLoads, truss);
 
-            // Second moment of area of each element's cross section, needed to compute the Euler
+            // [m^4] Second moment of area of each element's cross section, needed to compute the Euler
             // critical load and slenderness ratio of struts (Element.CS.Inertia is already computed
             // from the cross section's dimensions, see MuscleApp.ViewModel.CrossSection).
-            double[] inertia = truss.Elements.Select(e => e.CS.Inertia * M4_TO_MM4).ToArray();
+            // Passed in SI like every other quantity: musclepy never converts units.
+            double[] inertia = truss.Elements.Select(e => e.CS.Inertia).ToArray();
 
             // Initial imperfection amplitude e0, as a ratio of each element's free length.
             // If not provided, pass null through so musclepy applies its own default (L0/300).

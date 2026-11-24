@@ -64,13 +64,13 @@ class TestDR_3ComplexCables(unittest.TestCase):
         )
         
         # Create elements
-        cable_area =  np.pi * (8/2)**2  # 8mm diameter cable area in mm²
+        cable_area =  np.pi * (8e-3/2)**2  # [m²] 8mm diameter cable area (50.26 mm²)
         self.elements = PyElements(
             nodes=self.nodes,
             type=np.array([1, 1, 1]),  # Three cables
             end_nodes=np.array([[0, 3], [1, 3], [2, 3]]),  # Element connections
-            area=np.array([cable_area, cable_area, cable_area]),  # Area in mm²
-            youngs=np.array([[0.0, 70000.0, 70000.0], [70000.0, 70000.0, 70000.0]]),  # 70000 MPa Young's modulus. Cable 0 can only be in tension.
+            area=np.array([cable_area, cable_area, cable_area]),  # Area in m²
+            youngs=np.array([[0.0, 70000.0, 70000.0], [70000.0, 70000.0, 70000.0]]) * 1e6,  # 70000 MPa = 70e9 Pa Young's modulus. Cable 0 can only be in tension.
         )
         
         # Create structure
