@@ -246,17 +246,19 @@ def _post_process(displacements_increment: np.ndarray,
     for i in range(elements_count):
         n0, n1 = end_nodes[i]
         index = np.array([3*n0, 3*n0+1, 3*n0+2, 3*n1, 3*n1+1, 3*n1+2])
-        d_local = displacements_increment[index]  # Local displacements at element nodes
-            
+        d_local = displacements_increment[index]  # Local displacements at element nodes, shape (6,) or (6, 1)
+
         # Tangent local stiffness matrix
         k_local = local_material_stiffness_matrices[i] + local_geometric_stiffness_matrices[i]
-            
+
         # Local resisting forces at both element ends
         f_local = k_local @ d_local
         resisting_forces_increment[index] += f_local
-            
-        # Project forces to get tension
-        cx, cy, cz = direction_cosines[i]
-        tension_increment[i] = -(float(f_local[0])*cx + float(f_local[1])*cy + float(f_local[2])*cz) #axial forces
-            
+
+        # Project forces to get tension.
+        # f_local has the shape of d_local, (6, 1) when the displacements come as a column. Flatten it
+        # before projecting: float() of a 1-element array is deprecated since numpy 1.25 and fails in newer numpy.
+        f_start = np.ravel(f_local)[:3]  # force at the start node
+        tension_increment[i] = -float(np.dot(f_start, direction_cosines[i]))  # axial force
+
     return (tension_increment, resisting_forces_increment)
