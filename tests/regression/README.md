@@ -51,6 +51,7 @@ Deux cas particuliers :
 | `two_bars_linear_dm`, `two_bars_nonlinear_dm` | DM linéaire / non linéaire | Mémoire J. Feron, annexe A1.1.1 |
 | `tight_rope_nonlinear_dm_3_stages` | DM | Corde tendue précontrainte, 3 étapes |
 | `snelson_2x_localized_self_stress` | SVD + localisation | Aloui et al. 2019 |
+| `feron2023_simplex_test_1` | SVD, DM linéaire, DR | Simplex de Feron et al. 2023 avec les données publiées : mode, sensibilité, essai 1 (voir aussi `tests/MusclePyTests/validation`) |
 | `beam_fem_*`, `beam_dr_cantilever_tip_load` | Poutre NR / DR | Cas de `tests/MuscleCoreTests/Solvers/Beam*` |
 
 Les fichiers `.gh` (`examples/`, `TestsGH/`) ne peuvent pas être exécutés sans Rhino. Les cas ci-dessus reproduisent leurs structures directement en Python, au niveau de l'API que le plugin appelle.

@@ -55,6 +55,7 @@ from MusclePyTests.solvers.srdr.test_formulas_srdr import TestFormulasSRDR
 from MusclePyTests.solvers.srdr.test_srdr_simplex import TestSRDR_Simplex
 from MusclePyTests.solvers.stability.test_tangent_stiffness_stability import TestTangentStiffness, TestTangentStiffnessStability, TestModalAnalysisOfUnstableStructure
 from MusclePyTests.solvers.stability.test_prestress_stability import TestPrestressStability
+from MusclePyTests.validation.test_feron2023_simplex import TestFeron2023Simplex
 
 
 def create_test_suite():
@@ -91,6 +92,7 @@ def create_test_suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestTangentStiffnessStability))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestModalAnalysisOfUnstableStructure))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestPrestressStability))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestFeron2023Simplex))
 
 
     return suite

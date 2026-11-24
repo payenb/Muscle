@@ -180,13 +180,15 @@ Côté sérialisation, les types `GH_Truss`, `GH_Support`, `GH_CrossSection` et 
 
 | Dossier | Cas |
 |---|---|
-| `femodel/` | `PyNodes`, `PyElements` (unitaires) |
+| `femodel/` | `PyNodes`, `PyElements` (unitaires), longueurs libres à partir de la précontrainte (`prestress.py`, depuis novembre 2026) |
 | `solvers/linear_dm/` | treillis 2 barres (annexe A1.1.1 du mémoire de J. Feron), 3 câbles précontraints |
 | `solvers/nonlinear_dm/` | 2 barres, mécanisme lâche, corde tendue précontrainte (+ solution Excel en 3 étapes de charge) |
 | `solvers/svd/` | 2 câbles, arc 3 câbles, **simplex expérimental**, modes d'autocontrainte d'un « 2X Snelson » |
 | `solvers/dr/` | 2 câbles, 3 câbles (simple / complexe), **simplex** avec raccourcissement d'un câble (référence MATLAB de L. Rhode-Barbarigos) |
 | `solvers/dynamic/` | analyse modale du **simplex** |
 | `solvers/srdr/` | formules de réduction de rigidité (valeurs de Payen et al. 2026), **simplex** SRDR |
+| `solvers/stability/` | rigidité tangente exacte (différences finies), stabilité (plus petite valeur propre), test de Pellegrino-Calladine, analyse modale d'une structure instable (depuis novembre 2026) |
+| `validation/` | **simplex expérimental** de Feron et al. (2023) : valeurs publiées (tableaux 1 à 3, a_gov, figure 2, essai 1), données reprises de `tensegrite-vs-treillis` (depuis novembre 2026) |
 
 Aucun test Python ne couvre `beam_fem` ni `beam_dr` : ces solveurs ne sont testés que côté C#.
 

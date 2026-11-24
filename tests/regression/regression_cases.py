@@ -247,6 +247,62 @@ def simplex_dynamic_consistent_mass():
     return _simplex_dynamic(element_masses_option=2)
 
 
+def _feron2023_exact_nodes():
+    """[m] Simplex nodes rebuilt from the dimensions of Feron et al. (2023): equilateral triangles
+    of side 2043.8 mm centred on the printed bottom nodes, top turned by 30 deg, H = 1950 mm.
+    Same as tests/MusclePyTests/validation/test_feron2023_simplex.py (copied on purpose)."""
+    import math
+    centre = np.array([(0.0 + 0.0 + 1770.0) / 3, (-2043.8 + 0.0 - 1021.9) / 3])  # centroid of the printed bottom nodes [mm]
+    radius = 2043.8 / math.sqrt(3.0)
+    angles = np.radians([-120.0, 120.0, 0.0])
+    out = []
+    for z, turn in ((0.0, 0.0), (1950.0, math.radians(30.0))):
+        for a in angles:
+            out.append([centre[0] + radius * math.cos(a + turn), centre[1] + radius * math.sin(a + turn), z])
+    return np.array(out) * 1e-3
+
+
+@case
+def feron2023_simplex_test_1():
+    """Simplex of Feron et al. (2023) with its published data (exact nodes, CV at 72 190 MPa): self-stress
+    mode, linear sensitivity of the level to a strut lengthening, and test 1 by dynamic relaxation
+    (level 1.5 kN under self-weight, then 1.3 and 2.1 kN per top node)."""
+    end_nodes = np.array([[0, 5], [1, 3], [2, 4], [0, 1], [1, 2], [2, 0],
+                          [3, 4], [4, 5], [5, 3], [0, 3], [1, 4], [2, 5]])
+    dof = np.array([[False, True, False], [False, False, False], [True, True, False]] + [[True] * 3] * 3)
+    youngs = np.zeros((12, 2))
+    youngs[0:3, 0] = 70390e6
+    youngs[3:9, 1] = 71750e6
+    youngs[9:12, 1] = 72190e6
+    area = np.r_[np.full(3, 364.4e-6), np.full(9, 50.3e-6)]
+    nodes = PyNodes(initial_coordinates=_feron2023_exact_nodes(), dof=dof)
+    structure = PyTruss(nodes, PyElements(nodes=nodes, type=np.r_[-np.ones(3), np.ones(9)].astype(int),
+                                          end_nodes=end_nodes, area=area, youngs=youngs))
+    vs = mp.main_singular_value_decomposition(structure).Vs[:, 0]
+    mode = vs / -vs[0]
+
+    prestressed = mp.structure_with_tension(structure, 1500.0 * mode)
+    dl = np.zeros(12)
+    dl[0] = 1e-3
+    lengthened = mp.main_linear_displacement_method(prestressed, np.zeros(18), dl)
+    results = {"self_stress_mode": mode,
+               "strut_lengthening_tension_change": lengthened.elements.tension - prestressed.elements.tension}
+
+    info = {}
+    for label, load in (("self_weight", 0.0), ("p1300", 1300.0), ("p2100", 2100.0)):
+        loads = np.zeros((6, 3))
+        loads[:3, 2] = -45.7
+        loads[3:, 2] = -41.6 - load
+        config = PyConfigDR(zero_residual_rtol=1e-6, zero_residual_atol=1e-4, max_time_step=20000, max_ke_reset=2000)
+        state = mp.main_dynamic_relaxation(mp.structure_with_tension(structure, 1355.76 * mode), loads,
+                                           np.zeros(12), config)
+        results[f"{label}_tension"] = state.elements.tension
+        results[f"{label}_coordinates"] = state.nodes.coordinates
+        results[f"{label}_reactions"] = state.nodes.reactions
+        info[label] = _dr_info(config)
+    return {"results": results, "info": info}
+
+
 # ----------------------------------------------------------------------------------------
 # Small cable structures (dynamic relaxation)
 # ----------------------------------------------------------------------------------------

@@ -48,6 +48,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   consistently prestressed copy of a structure. Giving a `tension` without the matching free lengths
   is not enough: the dynamic relaxation recomputes the forces from the free lengths and the
   prestress disappears.
+- Validation tests against the published values of the experimental simplex of Feron,
+  Rhode-Barbarigos and Latteur (2023, J. Struct. Eng. 149(7), 04023073), data taken from the
+  repository tensegrite-vs-treillis (`tests/MusclePyTests/validation`), and the regression case
+  `feron2023_simplex_test_1`. Muscle reproduces table 1 (lengths, EA/L), table 2 (self-stress mode
+  0.393 / 0.681, sensitivities 602 / 237 / 410 N/mm), table 3 (Δa = 1001.5 N for the 1 kN scenario),
+  a_gov = 8.81 kN and the dynamic relaxation results of test 1. Gaps with the printed values: H at the
+  start of test 1 is 1945.5 mm instead of 1946.0 mm; at 2.1 kN per top node the struts carry
+  −10.87 kN instead of −10.80 kN (0.7 %).
 
 ### Effect of the exact tangent stiffness on results
 Regression references updated: `simplex_dynamic_lumped_mass`, `simplex_dynamic_consistent_mass`,
