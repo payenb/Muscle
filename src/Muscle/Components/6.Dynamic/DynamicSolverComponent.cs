@@ -207,6 +207,14 @@ namespace Muscle.Components.Dynamic
                 truss.warnings.Clear();
             }
 
+            // 4.2) A negative eigenvalue of the tangent stiffness (unstable structure) is returned by
+            // musclepy as a negative frequency: say so.
+            int unstableModes = resultsDynamic.Frequencies.Count(f => f < 0);
+            if (unstableModes > 0)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"{unstableModes} mode(s) with a negative eigenvalue: the structure is unstable in this state. Their frequency is shown as negative.");
+            }
+
             // 5) Set outputs
             DA.SetData(0, gh_truss);
             DA.SetDataList(1, GH_Encoders.ToBranch(resultsDynamic.Frequencies));

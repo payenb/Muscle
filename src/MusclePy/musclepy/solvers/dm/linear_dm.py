@@ -117,7 +117,8 @@ def core_linear_displacement_method(current: PyTruss, loads_increment: np.ndarra
     )      
     local_geometric_stiffness_matrices = compute_local_geometric_stiffness_matrices(
         current.elements.tension,
-        current.elements.current_length
+        current.elements.current_length,
+        current.elements.direction_cosines
     )
 
     # 1.2) Convert local matrices to global matrices of shape (3*nodes.count, 3*nodes.count)

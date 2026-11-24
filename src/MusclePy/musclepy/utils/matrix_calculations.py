@@ -138,30 +138,83 @@ def compute_local_material_stiffness_matrices(cosinus: np.ndarray, flexibility: 
         return km_loc_list
 
 
-def compute_local_geometric_stiffness_matrices(tension: np.ndarray, length: np.ndarray) -> list:
+def compute_local_geometric_stiffness_matrices(tension: np.ndarray, length: np.ndarray, cosinus: np.ndarray) -> list:
         """Compute local geometric stiffness matrices for each element.
-        
+
+        kg = t/L * [[P, -P], [-P, P]], with P = I - e e^T the projector orthogonal to the element
+        direction e. Added to the material stiffness EA/L0 * [[ee^T, -ee^T], [-ee^T, ee^T]], it gives
+        the exact tangent stiffness of an element whose tension is t = EA/L0 * (L - L0)
+        (Guest 2006, "The stiffness of prestressed frameworks: a unifying approach").
+        Before Muscle 2.0 the projector was the identity I: the axial stiffness was then EA/L0 + t/L
+        instead of EA/L0, an error of the order of the strain t/EA.
+
         Args:
             tension: [N] - shape (elements_count,) - Tension in each element
             length: [m] - shape (elements_count,) - Current length of each element
-            
+            cosinus: [-] - shape (elements_count, 3) - Current direction cosines of each element
+
         Returns:
             List of local geometric stiffness matrices, each of shape (6,6)
         """
         # Get element count from tension array
         elements_count = len(tension)
-        
+
         # Assert that inputs have the correct shapes
         assert tension.ndim == 1, "tension must be a 1D array"
         assert length.ndim == 1, "length must be a 1D array"
         assert len(length) == elements_count, "length must have the same length as tension"
-        
-        # Calculate force densities
-        force_densities = tension / length
-        
+        assert cosinus.shape == (elements_count, 3), f"cosinus must have shape ({elements_count}, 3), but has shape {cosinus.shape}"
+
         if elements_count == 0:
             return []
-            
+
+        # Calculate force densities
+        force_densities = tension / length
+
+        kg_loc_list = []
+        for i in range(elements_count):
+            e = cosinus[i]
+            P = np.eye(3) - np.outer(e, e)  # projector orthogonal to the element
+            kg = force_densities[i] * np.block([[P, -P], [-P, P]])
+            kg_loc_list.append(kg)
+
+        return kg_loc_list
+
+
+def compute_local_dr_mass_geometric_stiffness_matrices(tension: np.ndarray, length: np.ndarray) -> list:
+        """Geometric stiffness used ONLY for the fictitious masses of the dynamic relaxation.
+
+        kg = t/L * [[I, -I], [-I, I]]: with the material stiffness EA/L0 * ee^T it gives the element
+        stiffness EA/L0 + t/L along the element and t/L across it. This is the rule of Barnes (1999,
+        "Form finding and analysis of tension structures by dynamic relaxation", Int. J. Space Struct.
+        14(2):89-104), taken up by Bel Hadj Ali, Rhode-Barbarigos and Smith (2011, "Analysis of clustered
+        tensegrity structures using a modified dynamic relaxation algorithm", Int. J. Solids Struct.
+        48(5):637-647, eq. 19-20). It is NOT the exact tangent stiffness (see
+        compute_local_geometric_stiffness_matrices): it overestimates the axial stiffness of a tensioned
+        element by t/L, which gives larger masses, a deliberately conservative bound for the stability
+        of the explicit time integration of the DR. Do not use it for anything else.
+
+        Args:
+            tension: [N] - shape (elements_count,) - Tension in each element
+            length: [m] - shape (elements_count,) - Current length of each element
+
+        Returns:
+            List of local matrices, each of shape (6,6)
+        """
+        # Get element count from tension array
+        elements_count = len(tension)
+
+        # Assert that inputs have the correct shapes
+        assert tension.ndim == 1, "tension must be a 1D array"
+        assert length.ndim == 1, "length must be a 1D array"
+        assert len(length) == elements_count, "length must have the same length as tension"
+
+        # Calculate force densities
+        force_densities = tension / length
+
+        if elements_count == 0:
+            return []
+
         kg_loc_list = []
         for i in range(elements_count):
             kg = force_densities[i] * np.array([
@@ -173,8 +226,36 @@ def compute_local_geometric_stiffness_matrices(tension: np.ndarray, length: np.n
                 [ 0, 0,-1, 0, 0, 1]
             ])
             kg_loc_list.append(kg)
-            
+
         return kg_loc_list
+
+
+def compute_tangent_stiffness_matrix(structure) -> np.ndarray:
+    """Tangent stiffness matrix of a truss in its current state, on all the 3*nodes_count DOF.
+
+    K = sum over elements of EA/L0 * ee^T (material) + t/L * (I - ee^T) (geometric), assembled.
+    E is the current Young's modulus of each element (compression or tension modulus depending on
+    its elongation, see PyElements.young): a slack cable adds no material stiffness.
+
+    Args:
+        structure: PyTruss in its current state (coordinates, free lengths, tensions)
+
+    Returns:
+        [N/m] - shape (3*nodes_count, 3*nodes_count) - symmetric tangent stiffness matrix
+    """
+    elements = structure.elements
+    material = compute_global_material_stiffness_matrix(
+        compute_equilibrium_matrix(elements.connectivity, structure.nodes.coordinates),
+        elements.flexibility
+    )
+    geometric = local_to_global_matrix(
+        compute_local_geometric_stiffness_matrices(elements.tension, elements.current_length,
+                                                   elements.direction_cosines),
+        elements.end_nodes,
+        structure.nodes.count
+    )
+    K = material + geometric
+    return 0.5 * (K + K.T)  # remove round-off asymmetry
 
 
 def local_to_global_matrix(local_matrices, elements_end_nodes, nodes_count):

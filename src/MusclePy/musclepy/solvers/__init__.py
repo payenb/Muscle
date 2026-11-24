@@ -30,6 +30,7 @@ from . import beam_fem
 from . import beam_dr
 from . import dynamic
 from . import svd
+from . import stability
 from . import selfstress
 from . import test
 
@@ -52,10 +53,12 @@ from .beam_dr.py_config_beam_dr import PyConfigBeamDR
 from .test.test_script import main as test_script_main
 from .dynamic.py_results_dynamic import PyResultsDynamic
 from .dynamic.main import main_dynamic_modal_analysis
+from .stability.main import main_tangent_stiffness_stability
+from .stability.py_results_stability import PyResultsStability
 
 # Define __all__
 __all__ = [
-    'dm', 'dr', 'srdr', 'beam_fem', 'beam_dr', 'dynamic', 'svd', 'selfstress', 'test',
+    'dm', 'dr', 'srdr', 'beam_fem', 'beam_dr', 'dynamic', 'svd', 'stability', 'selfstress', 'test',
     'main_singular_value_decomposition',
     'PyResultsSVD',
     'localize_self_stress_modes',
@@ -72,6 +75,8 @@ __all__ = [
     'PyConfigBeamDR',
     'test_script_main',
     'PyResultsDynamic',
-    'main_dynamic_modal_analysis'
+    'main_dynamic_modal_analysis',
+    'main_tangent_stiffness_stability',
+    'PyResultsStability'
 ]
 

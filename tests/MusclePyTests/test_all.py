@@ -52,6 +52,7 @@ from MusclePyTests.solvers.dynamic.test_dynamic_simplex import TestDynamicSimple
 # Import Stiffness-Reduction Dynamic Relaxation test modules
 from MusclePyTests.solvers.srdr.test_formulas_srdr import TestFormulasSRDR
 from MusclePyTests.solvers.srdr.test_srdr_simplex import TestSRDR_Simplex
+from MusclePyTests.solvers.stability.test_tangent_stiffness_stability import TestTangentStiffness, TestTangentStiffnessStability, TestModalAnalysisOfUnstableStructure
 
 
 def create_test_suite():
@@ -82,6 +83,9 @@ def create_test_suite():
     # Add Stiffness-Reduction Dynamic Relaxation test classes
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestFormulasSRDR))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestSRDR_Simplex))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestTangentStiffness))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestTangentStiffnessStability))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestModalAnalysisOfUnstableStructure))
 
 
     return suite

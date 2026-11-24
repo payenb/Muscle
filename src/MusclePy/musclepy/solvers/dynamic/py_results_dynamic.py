@@ -34,18 +34,25 @@ class PyResultsDynamic:
     with a given mass distribution and stiffness.
     """
 
-    def __init__(self, frequencies, mode_shapes, mass_matrix):
+    def __init__(self, frequencies, mode_shapes, mass_matrix, eigenvalues=None):
         """
         Initialize a PyResultsDynamic object that stores the results of modal analysis.
         
         Args:
-            frequencies: np.ndarray - shape (n_modes,): Natural frequencies in Hz
+            frequencies: np.ndarray - shape (n_modes,): Natural frequencies in Hz. Negative for a mode
+                whose eigenvalue ω² is negative (unstable structure).
             mode_shapes: np.ndarray - shape (n_modes, 3*nodes_count): Mode shapes corresponding to the natural frequencies
             mass_matrix: np.ndarray - shape (3*nodes_count, 3*nodes_count): Mass matrix of the structure
+            eigenvalues: np.ndarray - shape (n_modes,): [rad²/s²] Eigenvalues ω² of K·φ = ω²·M·φ.
+                Defaults to the signed square of the angular frequencies.
         """
         self.frequencies = frequencies  # Natural frequencies in Hz
         self.mode_shapes = mode_shapes  # Mode shapes corresponding to the natural frequencies 
         self.mass_matrix = mass_matrix  # Mass matrix of the structure
+        if eigenvalues is None:
+            omega = 2 * np.pi * np.asarray(frequencies, dtype=float)
+            eigenvalues = np.sign(omega) * omega ** 2
+        self.eigenvalues = eigenvalues  # [rad²/s²] ω², negative for an unstable mode
         
     @property
     def angular_frequencies(self):
@@ -63,6 +70,15 @@ class PyResultsDynamic:
         """
         return 1 / self.frequencies
     
+    @property
+    def unstable_mode_count(self):
+        """
+        Returns:
+            int: Number of modes with a negative eigenvalue ω² (negative frequency). If > 0, the
+            structure is unstable in its current state.
+        """
+        return int(np.sum(np.asarray(self.frequencies) < 0))
+
     @property
     def mode_count(self):
         """

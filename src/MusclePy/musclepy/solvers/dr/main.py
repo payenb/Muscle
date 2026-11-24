@@ -125,7 +125,12 @@ def compute_next_state(current: PyTrussDR, config: PyConfigDR):
 
 def _compute_current_masses(current: PyTrussDR, config: PyConfigDR) -> np.ndarray:
     
-    # compute material + geometric stiffness matrices of shape: (3*NodesCount, 3*NodesCount)
+    # compute material + geometric stiffness matrices of shape: (3*NodesCount, 3*NodesCount).
+    # The geometric part follows Barnes' rule (ref [2]), EA/L0 + t/L along each element, as in eq. 19-20 of
+    # ref [1]: a deliberately conservative bound for the stability of the DR. It is NOT the exact tangent
+    # stiffness EA/L0 * ee^T + t/L * (I - ee^T) (utils.matrix_calculations.compute_tangent_stiffness_matrix),
+    # which serves the displacement methods, the modal analysis and the stability test.
+    # See utils.matrix_calculations.compute_local_dr_mass_geometric_stiffness_matrices.
     K = current.global_material_stiffness_matrix + current.global_geometric_stiffness_matrix
     
     #The diagonal of the matrix contains the sum of the stiffnesses for each elements, associated to one DoF

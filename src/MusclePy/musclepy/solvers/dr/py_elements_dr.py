@@ -30,7 +30,9 @@ class PyElementsDR(PyElements):
 
     Attributes:
         All attributes from PyElements
-        local_geometric_stiffness_matrices: List of local geometric stiffness matrices
+        local_geometric_stiffness_matrices: List of local geometric stiffness matrices used for the fictitious
+            masses of the DR only (Barnes' rule, see compute_local_dr_mass_geometric_stiffness_matrices;
+            not the exact tangent stiffness)
         inertia: [m^4] - shape (elements_count,) - Second moment of area of elements
         imperfection: [m] - shape (elements_count,) - Initial imperfection amplitude e0 of elements
         moment: [N.m] - shape (elements_count,) - Second-order bending moment M = N*e_max
@@ -165,7 +167,7 @@ class PyElementsDR(PyElements):
     
     def _compute_stiffness_matrices(self):
         """Update all local stiffness matrices of the elements based on the current state."""
-        from musclepy.utils.matrix_calculations import compute_local_geometric_stiffness_matrices
+        from musclepy.utils.matrix_calculations import compute_local_dr_mass_geometric_stiffness_matrices
         
         # Not used in DR
         # # local material stiffnesses : [N/m] - List(elements.count) of shape (6,6) matrices
@@ -174,8 +176,11 @@ class PyElementsDR(PyElements):
         #     self.flexibility
         # )
         
-        # local geometric stiffnesses : [N/m] - List(elements.count) of shape (6,6) matrices
-        self.local_geometric_stiffness_matrices = compute_local_geometric_stiffness_matrices(
+        # local geometric stiffnesses : [N/m] - List(elements.count) of shape (6,6) matrices.
+        # They only serve to compute the fictitious masses of the DR (dr.main._compute_current_masses), with
+        # Barnes' rule t/L * I (Bel Hadj Ali et al. 2011, eq. 19-20): a deliberately conservative bound for
+        # the stability of the DR, NOT the exact tangent stiffness t/L * (I - ee^T).
+        self.local_geometric_stiffness_matrices = compute_local_dr_mass_geometric_stiffness_matrices(
             self.tension,
             self.current_length
         )

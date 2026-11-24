@@ -17,6 +17,7 @@
 # List of the contributors to the development of Muscle: see NOTICE file.
 # Description and complete License: see NOTICE file.
 
+import warnings
 from ctypes import ArgumentError
 from musclepy.solvers.dynamic.py_results_dynamic import PyResultsDynamic
 from musclepy.femodel.pytruss import PyTruss
@@ -54,7 +55,10 @@ def main_dynamic_modal_analysis(structure: PyTruss, point_masses: np.ndarray = N
     
     Returns:
         PyResultsDynamic
-            Object containing natural frequencies (Hz), mode shapes, and mass matrix
+            Object containing natural frequencies (Hz), mode shapes, and mass matrix.
+            A mode whose eigenvalue ω² is negative (unstable structure, see
+            musclepy.solvers.stability) gets a negative frequency -sqrt(|ω²|)/2π, and a
+            RuntimeWarning is issued.
     
     Raises:
         ValueError: If no mass is defined on the structure or masses are negative
@@ -84,19 +88,46 @@ def main_dynamic_modal_analysis(structure: PyTruss, point_masses: np.ndarray = N
         # Solve the generalized eigenvalue problem: K·φ = ω²·M·φ
         eigenvalues, eigenvectors = sp.linalg.eigh(K, M, type=1, subset_by_index=[0,n_modes-1], driver="gvx")
 
-        # Convert eigenvalues (=ω²) to frequencies
-        angular_frequencies = np.sqrt(np.abs(eigenvalues))  
-        frequencies = angular_frequencies / (2 * np.pi)  # Convert to Hz
-        
-        # Create mode shapes (including fixed DOFs)
-        mode_shapes = np.zeros((3 * nodes_count, eigenvectors.shape[1]))
-        mode_shapes[dof] = eigenvectors
-        
-        # Create and return results object
-        return PyResultsDynamic(frequencies, mode_shapes.T, M_3n)
-        
     except Exception as e:
         raise RuntimeError(f"Eigenvalue computation failed: {e}")
+
+    # Convert eigenvalues (=ω²) to frequencies.
+    # A negative eigenvalue means that the tangent stiffness is not positive definite: the
+    # structure is unstable in its current state, and that mode has no real frequency. It is
+    # reported as a NEGATIVE frequency, -sqrt(|ω²|)/2π, instead of being hidden as a positive one.
+    # Round-off around a zero eigenvalue (mechanism) stays a zero frequency.
+    negative = eigenvalues < -_eigenvalue_zero_tolerance(K, M)
+    angular_frequencies = np.sqrt(np.maximum(eigenvalues, 0.0))
+    angular_frequencies[negative] = -np.sqrt(-eigenvalues[negative])
+    frequencies = angular_frequencies / (2 * np.pi)  # Convert to Hz
+    if np.any(negative):
+        warnings.warn(f"{int(np.sum(negative))} negative eigenvalue(s) of the tangent stiffness: the structure is "
+                      "unstable in this state. These modes are returned with a negative frequency.",
+                      RuntimeWarning, stacklevel=2)
+
+    # Create mode shapes (including fixed DOFs)
+    mode_shapes = np.zeros((3 * nodes_count, eigenvectors.shape[1]))
+    mode_shapes[dof] = eigenvectors
+
+    # Create and return results object
+    return PyResultsDynamic(frequencies, mode_shapes.T, M_3n, eigenvalues=eigenvalues)
+
+
+EIGENVALUE_ZERO_RTOL = 1e-10  # see _eigenvalue_zero_tolerance
+
+
+def _eigenvalue_zero_tolerance(K: np.ndarray, M: np.ndarray) -> float:
+    """[rad²/s²] Eigenvalues ω² above minus this value are not counted as negative (round-off).
+
+    EIGENVALUE_ZERO_RTOL times max(K_ii / M_ii), which is of the order of the largest ω²
+    (same relative tolerance as the stability test, musclepy.solvers.stability).
+    """
+    k_diag = np.abs(np.diag(K))
+    m_diag = np.abs(np.diag(M))
+    with_mass = m_diag > 0
+    if not np.any(with_mass):
+        return 0.0
+    return EIGENVALUE_ZERO_RTOL * float(np.max(k_diag[with_mass] / m_diag[with_mass]))
 
 
 def _compute_tangent_stiffness_matrix(structure: PyTruss):
@@ -115,29 +146,10 @@ def _compute_tangent_stiffness_matrix(structure: PyTruss):
         np.ndarray
             The global tangent stiffness matrix of shape (3*nodes_count, 3*nodes_count)
     """
-    from musclepy.utils.matrix_calculations import (
-        compute_equilibrium_matrix,
-        compute_global_material_stiffness_matrix,
-        compute_local_geometric_stiffness_matrices,
-        local_to_global_matrix
-    )
-        
-    # Compute global material stiffness matrix
-    global_material_stiffness_matrix = compute_global_material_stiffness_matrix(
-        compute_equilibrium_matrix(structure.elements.connectivity, structure.nodes.coordinates),  # equilibrium matrix based on current nodes coordinates                                    
-        structure.elements.flexibility  # current elements flexibility (depends whether the element is in compression or tension)
-    )
+    from musclepy.utils.matrix_calculations import compute_tangent_stiffness_matrix
 
-    # Compute global geometric stiffness matrix
-    global_geometric_stiffness_matrix = local_to_global_matrix(
-        compute_local_geometric_stiffness_matrices(structure.elements.tension, structure.elements.current_length),
-        structure.elements.end_nodes,
-        structure.nodes.count
-    )
-    
-    # Sum both matrices to get the tangent stiffness matrix
-    global_tangent_stiffness_matrix = global_material_stiffness_matrix + global_geometric_stiffness_matrix
-    return global_tangent_stiffness_matrix
+    # EA/L0 * ee^T + t/L * (I - ee^T) for each element, see compute_tangent_stiffness_matrix
+    return compute_tangent_stiffness_matrix(structure)
 
 
 def _compute_mass_matrix(structure: PyTruss, point_masses: np.ndarray = None, 
