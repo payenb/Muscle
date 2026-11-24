@@ -29,3 +29,5 @@
 - [ ] Assemblage des matrices à chaque pas (gain de vitesse).
 - [ ] Option de tolérance relative pour la DR.
 - [ ] Fonction autonome de calcul des réactions.
+- [ ] `nonlinear_dm` avance sans itérer l'équilibre à chaque pas : dérive d'environ 10⁻³ à 100 pas sur la corde tendue (voir `CHANGELOG.md`). Ajouter des itérations de Newton-Raphson à chaque pas. C'est nécessaire pour étudier le flambement global près d'un point limite.
+- [ ] Composant Grasshopper pour `main_tangent_stiffness_stability`.
