@@ -32,6 +32,7 @@ sys.path.append(tests_dir)
 # Import all test modules
 from MusclePyTests.femodel.test_pyelements import TestPyElements
 from MusclePyTests.femodel.test_pynodes import TestPyNodes
+from MusclePyTests.femodel.test_prestress import TestFreeLengthFromTension, TestStructureWithTension
 from MusclePyTests.solvers.linear_dm.test_linear_dm_2bars_truss import TestLinearDM_2BarsTruss
 from MusclePyTests.solvers.linear_dm.test_linear_dm_3prestressedcables import TestLinearDM_3PrestressedCables
 from MusclePyTests.solvers.linear_dm.test_linear_dm_perturbation import TestLinearDM_Perturbation
@@ -64,6 +65,8 @@ def create_test_suite():
     # Add test classes
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestPyElements))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestPyNodes))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestFreeLengthFromTension))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestStructureWithTension))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestLinearDM_2BarsTruss))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestLinearDM_3PrestressedCables))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestLinearDM_Perturbation))

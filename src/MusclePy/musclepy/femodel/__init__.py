@@ -25,5 +25,6 @@ from .pynodes import PyNodes
 from .pyelements import PyElements
 from .pytruss import PyTruss
 from .prestress_scenario import PrestressScenario
+from .prestress import free_length_from_tension, structure_with_tension
 
-__all__ = ['PyNodes', 'PyElements', 'PyTruss', 'PrestressScenario']
+__all__ = ['PyNodes', 'PyElements', 'PyTruss', 'PrestressScenario', 'free_length_from_tension', 'structure_with_tension']

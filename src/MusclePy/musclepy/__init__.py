@@ -37,6 +37,7 @@ from . import femodel
 from .femodel.pynodes import PyNodes
 from .femodel.pyelements import PyElements
 from .femodel.pytruss import PyTruss
+from .femodel.prestress import free_length_from_tension, structure_with_tension
 
 # import subpackages solvers
 from . import solvers
@@ -72,6 +73,8 @@ __all__ = [
     'PyNodes',
     'PyElements',
     'PyTruss',
+    'free_length_from_tension',
+    'structure_with_tension',
     'PyResultsSVD',
     'PyConfigDR',
     'PyResultsDynamic',
