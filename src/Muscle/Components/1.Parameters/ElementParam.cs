@@ -39,6 +39,7 @@ namespace Muscle.Components.Param
 
         public ElementParam() : base("Element", "E", "Contains a collection of finite elements",  GHAssemblyName, Folder1_Param) { }
         public override Guid ComponentGuid { get { return new Guid("b72f7e2a-96e4-4f41-838e-a5c2f439ee82"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("ParamElement"); } }
 
 
         #endregion Constructors

@@ -35,6 +35,8 @@ namespace Muscle.Components.ConstructFEModel
 
         public override Guid ComponentGuid { get { return new Guid("cc34f850-a6e2-410f-8521-9116ed4b7ae8"); } }
 
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("Support"); } }
+
         public override bool IsPreviewCapable { get { return true; } }
 
         #endregion Properties

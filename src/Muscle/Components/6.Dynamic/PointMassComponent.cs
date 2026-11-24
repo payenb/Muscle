@@ -1,6 +1,6 @@
 // Muscle
 
-// Copyright <2015-2025> <Université catholique de Louvain (UCLouvain)>
+// Copyright <2015-2025> <Universitï¿½ catholique de Louvain (UCLouvain)>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ namespace Muscle.Components.Dynamic
         #region Properties
 
         public override Guid ComponentGuid { get { return new Guid("89bdc53d-2aa2-414e-9567-08212f232b3c"); } }
+
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("PointMass"); } }
 
         #endregion Properties
 

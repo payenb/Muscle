@@ -39,6 +39,7 @@ namespace Muscle.Components.Param
 
         public NodeParam() : base("Node", "N", "Contains a collection of nodes",  GHAssemblyName, Folder1_Param) { }
         public override Guid ComponentGuid { get { return new Guid("43e5a6b6-2994-4aa5-b695-bca88bb512b5"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("ParamNode"); } }
 
 
         #endregion Constructors

@@ -64,7 +64,7 @@ namespace Muscle.Components.Display
 
         protected override Bitmap Icon
         {
-            get { return null; }
+            get { return Muscle.View.IconLoader.Get("ShowBending"); }
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)

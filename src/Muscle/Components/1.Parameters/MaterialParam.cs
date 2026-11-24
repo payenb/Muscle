@@ -45,6 +45,7 @@ namespace Muscle.Components.Param
         /// This is the Global Unique IDentifier (GUID) of the parameter. It's a unique value that allow to identify the parameter as itself. DO NOT change it.
         /// </summary>
         public override Guid ComponentGuid { get { return new Guid("adbbd42d-bc40-4adf-ae90-81c4005dd316"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("ParamMaterial"); } }
 
         #endregion Constructors
 

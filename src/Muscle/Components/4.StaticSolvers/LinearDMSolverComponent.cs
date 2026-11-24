@@ -1,4 +1,4 @@
-// Muscle
+﻿// Muscle
 
 // Copyright <2015-2025> <Université catholique de Louvain (UCLouvain)>
 
@@ -184,7 +184,7 @@ namespace Muscle.Components.Solvers
             {
                 // You can add image files to your project resources and access them like this:
                 //return Resources.IconForThisComponent;
-                return null;
+                return Muscle.View.IconLoader.Get("LinearDM");
             }
         }
 

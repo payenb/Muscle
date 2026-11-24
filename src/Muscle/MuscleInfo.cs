@@ -54,7 +54,7 @@ namespace Muscle
         public override string Name => "Muscle 2.0";
 
         //Return a 24x24 pixel bitmap to represent this GHA library.
-        public override Bitmap Icon => null;
+        public override Bitmap Icon => View.IconLoader.Get("MusclePlugin");
 
         //Return a short string describing the purpose of this GHA library.
         public override string Description => "Muscle 2.0 is a fork of Muscle, a Grasshopper plugin for structural analysis that focuses on the design, analysis, and optimization of tensegrity, tension-based, and truss-like structures. This fork adds new computation methods (e.g. stiffness reduction due to strut geometric imperfections) developed as part of Basile Payen's PhD research.";

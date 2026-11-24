@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Throwaway dev tool: generates the PNG icons under src/Muscle/Resources/Icons/.
+       Not part of Muscle.sln, not shipped in the plugin - run with `dotnet run` whenever
+       the icon set needs to be regenerated or tweaked. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

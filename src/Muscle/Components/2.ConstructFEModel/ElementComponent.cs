@@ -46,6 +46,8 @@ namespace Muscle.Components.ConstructFEModel
 
         public override Guid ComponentGuid { get { return new Guid("aa246ec0-52ae-4bed-a6e1-2ea1b8ebab4c"); } }
 
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("Element"); } }
+
         public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
         {
             base.AppendAdditionalMenuItems(menu);

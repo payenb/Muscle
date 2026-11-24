@@ -36,6 +36,8 @@ namespace Muscle.Components.StaticLoading
 
         public override Guid ComponentGuid { get { return new Guid("8fd8d0fe-7f55-4494-a131-78edc3e329c1"); } }
 
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("SelfWeight"); } }
+
         #endregion Properties
 
         #region Constructors

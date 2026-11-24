@@ -96,7 +96,7 @@ namespace Muscle.Components.Dynamic
             get
             {
                 //return Properties.Resources.Lumped;
-                return null;
+                return Muscle.View.IconLoader.Get("Dynamic");
             }
         }
 

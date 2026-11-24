@@ -108,7 +108,7 @@ namespace Muscle.Components.StaticLoading
             get
             {
                 // You can add custom icon here
-                return null;
+                return Muscle.View.IconLoader.Get("SelfStress");
             }
         }
 

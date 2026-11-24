@@ -39,6 +39,7 @@ namespace Muscle.Components.Param
 
         public PointLoadParam() : base("Point Load", "Load", "Contains a collection of point loads",  GHAssemblyName, Folder1_Param) { }
         public override Guid ComponentGuid { get { return new Guid("fc044630-25bd-424d-9e26-01940c7afa70"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("ParamPointLoad"); } }
 
 
         #endregion Constructors

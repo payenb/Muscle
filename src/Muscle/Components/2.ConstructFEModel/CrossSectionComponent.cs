@@ -34,6 +34,7 @@ namespace Muscle.Components.ConstructFEModel
         public CS_CircularComponent() : base("Construct Cross Section - Circular", "Circular CS", "Define a (hollow) circular cross-section", GHAssemblyName, Folder2_ConstructFEM) { }
 
         public override Guid ComponentGuid { get { return new Guid("9a7b4885-ddf2-4156-8e7e-841f97551ea2"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("CrossSection"); } }
         #endregion Constructors
 
         #region Methods
@@ -72,6 +73,7 @@ namespace Muscle.Components.ConstructFEModel
 
         public CS_SquareComponent() : base("Construct Cross Section - Square", "Square CS", "Define a (hollow) square cross-section", GHAssemblyName, Folder2_ConstructFEM) { }
         public override Guid ComponentGuid { get { return new Guid("22319de8-0f38-4eeb-96fd-808582bdcf46"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("CrossSectionSquare"); } }
 
         #endregion Constructors
 

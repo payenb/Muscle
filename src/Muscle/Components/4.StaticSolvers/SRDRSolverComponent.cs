@@ -75,7 +75,7 @@ namespace Muscle.Components.Solvers
         {
             get
             {
-                return null;
+                return Muscle.View.IconLoader.Get("SRDR");
             }
         }
 

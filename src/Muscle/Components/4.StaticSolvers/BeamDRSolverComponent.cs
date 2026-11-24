@@ -61,7 +61,7 @@ namespace Muscle.Components.Solvers
 
         protected override System.Drawing.Bitmap Icon
         {
-            get { return null; }
+            get { return Muscle.View.IconLoader.Get("BeamDR"); }
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)

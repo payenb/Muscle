@@ -55,7 +55,7 @@ namespace Muscle.Components.ConstructFEModel
 
         protected override System.Drawing.Bitmap Icon
         {
-            get { return null; }
+            get { return Muscle.View.IconLoader.Get("BeamStructure"); }
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)

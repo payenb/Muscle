@@ -39,6 +39,7 @@ namespace Muscle.Components.Param
 
         public TrussParam() : base("Structure", "struct", "Contains a collection of structures",  GHAssemblyName, Folder1_Param) { }
         public override Guid ComponentGuid { get { return new Guid("c62543bb-9fcf-4283-a0f2-7138c4402f25"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("ParamStructure"); } }
 
 
         #endregion Constructors

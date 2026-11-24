@@ -34,6 +34,8 @@ namespace Muscle.Components.StaticLoading
 
         public override Guid ComponentGuid { get { return new Guid("ae9bb645-e678-42f6-b0ab-dd49fa037636"); } }
 
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("PointLoad"); } }
+
         #endregion Properties
 
         #region Constructors

@@ -32,6 +32,8 @@ namespace Muscle.Components.DeconstructFEModel
 
         public override Guid ComponentGuid { get { return new Guid("c3d746b8-d3d9-4ba5-a81f-14a8b5e3459e"); } }
 
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("DeconstructCrossSection"); } }
+
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("Cross Section", "CS", "A cross section.", GH_ParamAccess.item);

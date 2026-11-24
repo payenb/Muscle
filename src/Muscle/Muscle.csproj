@@ -61,6 +61,11 @@
     <Folder Include="Components\6.Dynamic\" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Component/plugin icons - see tools/IconGenerator (run `dotnet run` there to regenerate).
+         _contact_sheet.png is a review aid only, not embedded. -->
+    <EmbeddedResource Include="Resources\Icons\*.png" Exclude="Resources\Icons\_contact_sheet.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

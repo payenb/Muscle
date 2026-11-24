@@ -61,6 +61,8 @@ namespace Muscle.Components.CreateModel
         /// </summary>
         public override Guid ComponentGuid { get { return new Guid("a580fe33-2ff2-49ff-a07f-df74587dd3f7"); } }
 
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("MaterialList"); } }
+
 
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)

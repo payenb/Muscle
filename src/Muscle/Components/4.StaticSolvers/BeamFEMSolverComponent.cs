@@ -59,7 +59,7 @@ namespace Muscle.Components.Solvers
 
         protected override System.Drawing.Bitmap Icon
         {
-            get { return null; }
+            get { return Muscle.View.IconLoader.Get("BeamFEM"); }
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)

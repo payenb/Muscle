@@ -98,7 +98,7 @@ namespace Muscle.Components.DeconstructFEModel
 
         protected override System.Drawing.Bitmap Icon
         {
-            get { return null; }
+            get { return Muscle.View.IconLoader.Get("DeconstructBeamElement"); }
         }
 
         public override Guid ComponentGuid

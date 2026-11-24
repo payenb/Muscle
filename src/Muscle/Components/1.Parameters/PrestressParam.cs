@@ -39,6 +39,7 @@ namespace Muscle.Components.Param
 
         public PrestressParam() : base("Prestress", "P", "Contains a collection of prestresses",  GHAssemblyName, Folder1_Param) { }
         public override Guid ComponentGuid { get { return new Guid("572e1ad0-bf8e-40e1-92c5-6c6a1f24fa6c"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("ParamPrestress"); } }
 
 
         #endregion Constructors

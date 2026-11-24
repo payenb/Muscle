@@ -49,6 +49,7 @@ namespace Muscle.Components.DeconstructFEModel
         /// This is the Global Unique IDentifier (GUID) of the component. It's a unique value that allow to identify the component as itself. DO NOT change it.
         /// </summary>
         public override Guid ComponentGuid { get { return new Guid("49e788cb-09d7-4cf2-b403-54348087b14f"); } }
+        protected override System.Drawing.Bitmap Icon { get { return Muscle.View.IconLoader.Get("DeconstructMaterial"); } }
         #endregion Constructors
 
         #region Methods
