@@ -53,7 +53,7 @@ from .beam_dr.py_config_beam_dr import PyConfigBeamDR
 from .test.test_script import main as test_script_main
 from .dynamic.py_results_dynamic import PyResultsDynamic
 from .dynamic.main import main_dynamic_modal_analysis
-from .stability.main import main_tangent_stiffness_stability
+from .stability.main import main_tangent_stiffness_stability, main_prestress_stability
 from .stability.py_results_stability import PyResultsStability
 
 # Define __all__
@@ -77,6 +77,7 @@ __all__ = [
     'PyResultsDynamic',
     'main_dynamic_modal_analysis',
     'main_tangent_stiffness_stability',
+    'main_prestress_stability',
     'PyResultsStability'
 ]
 

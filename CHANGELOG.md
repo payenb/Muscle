@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `main_tangent_stiffness_stability` and `PyResultsStability` (`musclepy.solvers.stability`):
   stable / critical / unstable from the smallest eigenvalue of the tangent stiffness, with its mode.
+- `main_prestress_stability` (`musclepy.solvers.stability`): Pellegrino-Calladine test. The
+  geometric stiffness `(t/L)(I − eeᵀ)` of a self-stress state is projected on the infinitesimal
+  mechanisms of the SVD; positive definite = prestress stable. Needs no material properties.
 
 ### Effect of the exact tangent stiffness on results
 Regression references updated: `simplex_dynamic_lumped_mass`, `simplex_dynamic_consistent_mass`,

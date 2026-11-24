@@ -22,7 +22,7 @@
 musclepy.solvers.stability - Stability of an equilibrium state
 """
 
-from .main import main_tangent_stiffness_stability, STABILITY_TOL
+from .main import main_tangent_stiffness_stability, main_prestress_stability, STABILITY_TOL
 from .py_results_stability import PyResultsStability
 
-__all__ = ['main_tangent_stiffness_stability', 'STABILITY_TOL', 'PyResultsStability']
+__all__ = ['main_tangent_stiffness_stability', 'main_prestress_stability', 'STABILITY_TOL', 'PyResultsStability']

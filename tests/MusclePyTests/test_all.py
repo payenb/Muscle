@@ -53,6 +53,7 @@ from MusclePyTests.solvers.dynamic.test_dynamic_simplex import TestDynamicSimple
 from MusclePyTests.solvers.srdr.test_formulas_srdr import TestFormulasSRDR
 from MusclePyTests.solvers.srdr.test_srdr_simplex import TestSRDR_Simplex
 from MusclePyTests.solvers.stability.test_tangent_stiffness_stability import TestTangentStiffness, TestTangentStiffnessStability, TestModalAnalysisOfUnstableStructure
+from MusclePyTests.solvers.stability.test_prestress_stability import TestPrestressStability
 
 
 def create_test_suite():
@@ -86,6 +87,7 @@ def create_test_suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestTangentStiffness))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestTangentStiffnessStability))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestModalAnalysisOfUnstableStructure))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestPrestressStability))
 
 
     return suite

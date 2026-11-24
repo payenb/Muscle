@@ -27,13 +27,16 @@ class PyResultsStability:
     Attributes:
         status: "stable", "critical" or "unstable" (see musclepy.solvers.stability.main)
         min_eigenvalue: [N/m] smallest eigenvalue of the tested matrix
-        scale: [N/m] reference stiffness of the relative tolerance (largest diagonal term of the
-               tangent stiffness on the free DOF)
+        scale: [N/m] reference stiffness of the relative tolerance: largest diagonal term, on the
+               free DOF, of the tangent stiffness (or of the geometric stiffness for the
+               Pellegrino-Calladine test)
         negative_count: [-] number of eigenvalues below -tol * scale
         critical_mode: [m, normalised] shape (3*nodes_count,) - eigenvector of the smallest
                eigenvalue, as nodal displacements (0 on fixed DOF), unit norm, largest component
                positive. Empty array if the tested space has no dimension (e.g. no mechanism).
         tol: [-] relative tolerance used for the classification
+        mechanism_count: [-] number of infinitesimal mechanisms (Pellegrino-Calladine test only, None
+               otherwise)
     """
 
     def __init__(self, status: str, min_eigenvalue: float, scale: float, negative_count: int,
@@ -45,6 +48,7 @@ class PyResultsStability:
         self.negative_count = int(negative_count)
         self.critical_mode = np.asarray(critical_mode, dtype=float)
         self.tol = float(tol)
+        self.mechanism_count = None
 
     @property
     def is_stable(self) -> bool:

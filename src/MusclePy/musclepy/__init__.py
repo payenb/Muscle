@@ -60,7 +60,7 @@ from .solvers.beam_dr.main import solve as main_beam_dr
 from .solvers.beam_dr.py_config_beam_dr import PyConfigBeamDR
 from .solvers.dynamic.py_results_dynamic import PyResultsDynamic
 from .solvers.dynamic.main import main_dynamic_modal_analysis
-from .solvers.stability.main import main_tangent_stiffness_stability
+from .solvers.stability.main import main_tangent_stiffness_stability, main_prestress_stability
 from .solvers.stability.py_results_stability import PyResultsStability
 
 
@@ -90,5 +90,6 @@ __all__ = [
     'PyConfigBeamDR',
     'main_dynamic_modal_analysis',
     'main_tangent_stiffness_stability',
+    'main_prestress_stability',
     'PyResultsStability'
 ]

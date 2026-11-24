@@ -21,6 +21,12 @@
 """
 musclepy.solvers.stability - Is an equilibrium state stable?
 
+Two tests:
+- main_tangent_stiffness_stability: smallest eigenvalue of the tangent stiffness (needs the material
+  properties and a consistent state);
+- main_prestress_stability: Pellegrino-Calladine test, geometric stiffness of the prestress projected
+  on the infinitesimal mechanisms (needs only the geometry and the self-stress state).
+
 For a conservative system (dead loads, elastic members), an equilibrium state is stable when
 the tangent stiffness K_t = K_material + K_geometric, restricted to the free degrees of freedom,
 is positive definite (Guest 2006, "The stiffness of prestressed frameworks: a unifying approach").
@@ -65,6 +71,62 @@ def main_tangent_stiffness_stability(structure: PyTruss, tol: float = STABILITY_
     K = compute_tangent_stiffness_matrix(structure)[np.ix_(free, free)]
     scale = _scale(K)
     return _classify(K, np.eye(K.shape[0]), scale, tol, free)
+
+
+def main_prestress_stability(structure: PyTruss, tension: np.ndarray = None, zero_rtol: float = 1e-3,
+                             tol: float = STABILITY_TOL) -> PyResultsStability:
+    """Pellegrino-Calladine test: does the prestress stiffen the infinitesimal mechanisms?
+
+    The m mechanisms Um are the displacements of the free DOF that do not elongate any element
+    (A^T u = 0, SVD of the equilibrium matrix A). They have no material stiffness, so their
+    stiffness comes from the prestress only, through the geometric stiffness
+    Kg = sum of t/L * (I - ee^T). The structure is prestress stable when the projection
+    Q = Um^T Kg Um is positive definite: each mechanism is then a first-order infinitesimal
+    mechanism stiffened by the prestress (Pellegrino & Calladine 1986, "Matrix analysis of
+    statically and kinematically indeterminate frameworks", Int. J. Solids Struct. 22(4):409-428;
+    Calladine & Pellegrino 1991, "First-order infinitesimal mechanisms", Int. J. Solids Struct.
+    27(4):505-515; Connelly & Whiteley 1996).
+
+    Unlike main_tangent_stiffness_stability, this test needs no material properties: only the
+    geometry and a self-stress state. It is the natural complement of the SVD solver.
+
+    Args:
+        structure: PyTruss, in the geometry to test
+        tension: [N] - shape (elements_count,) - prestress (self-stress) state to test. Defaults to
+                 structure.elements.tension. Any positive multiple gives the same status.
+        zero_rtol: [-] relative tolerance on the singular values of A, to count the mechanisms (same
+                   meaning and default as main_singular_value_decomposition)
+        tol: [-] relative tolerance of the classification, on the largest diagonal term of Kg on the
+             free DOF (see the module docstring)
+
+    Returns:
+        PyResultsStability, where
+            status: "stable" (prestress stable, or no mechanism at all), "critical" (a mechanism that
+                    the prestress does not stiffen to first order) or "unstable" (a mechanism that the
+                    prestress destabilises)
+            min_eigenvalue: [N/m] smallest eigenvalue of Q (inf if there is no mechanism)
+            critical_mode: the corresponding combination of mechanisms, as nodal displacements
+            mechanism_count: m
+    """
+    from musclepy.solvers.svd.main import main_singular_value_decomposition
+    from musclepy.utils.matrix_calculations import (compute_local_geometric_stiffness_matrices,
+                                                    local_to_global_matrix)
+
+    assert isinstance(structure, PyTruss), "structure must be a PyTruss instance"
+    elements = structure.elements
+    tension = elements.tension if tension is None else elements._check_and_reshape_array(tension, "tension")
+    free = structure.nodes.dof.reshape(-1)
+
+    Kg = local_to_global_matrix(
+        compute_local_geometric_stiffness_matrices(tension, elements.current_length, elements.direction_cosines),
+        elements.end_nodes, structure.nodes.count)[np.ix_(free, free)]
+    scale = _scale(Kg)
+
+    svd = main_singular_value_decomposition(structure, zero_rtol=zero_rtol)
+    mechanisms = svd.Um[free, :]  # orthonormal columns, shape (n_free, m)
+    result = _classify(mechanisms.T @ Kg @ mechanisms, mechanisms, scale, tol, free)
+    result.mechanism_count = int(svd.m)
+    return result
 
 
 def _scale(K_free: np.ndarray) -> float:
