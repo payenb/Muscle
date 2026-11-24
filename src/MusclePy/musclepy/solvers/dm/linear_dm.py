@@ -162,20 +162,31 @@ def core_linear_displacement_method(current: PyTruss, loads_increment: np.ndarra
 
     return (displacements_increment.reshape((-1,)), reactions_increment.reshape((-1,)), resisting_forces_increment.reshape((-1,)), tension_increment.reshape((-1,)))
 
-def perturb(unstable_struct: PyTruss, magnitude: float = 1e-5):
+PERTURBATION_SEED = 0  # seed of the random perturbation applied to singular structures (see perturb)
+
+
+def perturb(unstable_struct: PyTruss, magnitude: float = 1e-5, rng: np.random.Generator = None):
         """Create a copy of the structure with tiny random displacements applied to free DOFs.
-        
+
         This method helps deal with singular stiffness matrices by slightly perturbing the structure.
         The perturbation is only applied to degrees of freedom that are not fixed by supports.
-        
+
         Args:
+            unstable_struct: Structure whose stiffness matrix is singular
             magnitude: [m] Standard deviation for the random perturbation. Default is 1e-5 meters.
-            
+            rng: Random generator drawing the perturbation. If None, a new generator seeded with
+                PERTURBATION_SEED is used, so the same structure always gets the same perturbation
+                and the results are reproducible. Pass a generator to draw successive, different
+                (but still reproducible) perturbations, as the nonlinear displacement method does.
+
         Returns:
-            New DM_Structure with perturbed node coordinates
+            New PyTruss with perturbed node coordinates
         """
+        if rng is None:
+            rng = np.random.default_rng(PERTURBATION_SEED)
+
         # Create random perturbation with specified magnitude
-        perturbation = np.random.normal(0, magnitude, size=(unstable_struct.nodes.count, 3))
+        perturbation = rng.normal(0, magnitude, size=(unstable_struct.nodes.count, 3))
         
         # Apply perturbation only to free DOFs (True = 1 if free DoF, False = 0 if fixed DoF)
         perturbation = perturbation * unstable_struct.nodes.dof

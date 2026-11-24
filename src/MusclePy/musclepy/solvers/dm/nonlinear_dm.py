@@ -22,7 +22,7 @@
 
 
 from musclepy.femodel.pytruss import PyTruss
-from musclepy.solvers.dm.linear_dm import core_linear_displacement_method, perturb
+from musclepy.solvers.dm.linear_dm import core_linear_displacement_method, perturb, PERTURBATION_SEED
 import numpy as np
 
 
@@ -50,6 +50,7 @@ def main_nonlinear_displacement_method(structure: PyTruss, loads_increment: np.n
     l0 = 1 / n_steps  # incremental length
     max_steps = n_steps * 5  # max number of steps allowed
     perturbation = 1e-3  # [m] perturbation of the nodes coordinates if singular matrix
+    rng = np.random.default_rng(PERTURBATION_SEED)  # seeded: the perturbations, hence the results, are reproducible
 
     # Initialize solution tracking variables
     step = 0  # current step number
@@ -85,7 +86,7 @@ def main_nonlinear_displacement_method(structure: PyTruss, loads_increment: np.n
             
         except np.linalg.LinAlgError:
             # In case of singular matrix, perturb the structure with tiny displacements
-            perturbed = perturb(current_state, magnitude=perturbation)
+            perturbed = perturb(current_state, magnitude=perturbation, rng=rng)
             current_state = perturbed.copy()
             v, r, f, t = core_linear_displacement_method(current_state, total_loads_incr)
             
