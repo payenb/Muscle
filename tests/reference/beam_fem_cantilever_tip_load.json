@@ -1,0 +1,97 @@
+{
+ "case": "beam_fem_cantilever_tip_load",
+ "description": "Steel cantilever, transverse tip load, corotational Newton-Raphson.",
+ "generated_with": {
+  "musclepy": "2.0.0",
+  "numpy": "2.3.4",
+  "scipy": "1.16.2",
+  "python": "3.12.7"
+ },
+ "tolerance": {
+  "rtol": 1e-05,
+  "atol_scale": 1e-06,
+  "atol_floor": 1e-09
+ },
+ "info": {
+  "converged": true,
+  "n_iteration": 4
+ },
+ "results": {
+  "displacements": {
+   "shape": [
+    2,
+    6
+   ],
+   "values": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    -4.8236450763603095e-06,
+    0.0053827635862394975,
+    0.0,
+    0.0,
+    0.0,
+    0.002691383232375823
+   ]
+  },
+  "reactions": {
+   "shape": [
+    2,
+    6
+   ],
+   "values": [
+    -2.9577984590467565e-06,
+    -1000.0000000053043,
+    0.0,
+    0.0,
+    0.0,
+    -2999.9951763549166,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "tension": {
+   "shape": [
+    1
+   ],
+   "values": [
+    1.79425748333036
+   ]
+  },
+  "moment_start": {
+   "shape": [
+    1,
+    2
+   ],
+   "values": [
+    0.0,
+    -2999.9951763549166
+   ]
+  },
+  "moment_end": {
+   "shape": [
+    1,
+    2
+   ],
+   "values": [
+    0.0,
+    9.094947017729282e-13
+   ]
+  },
+  "torsion": {
+   "shape": [
+    1
+   ],
+   "values": [
+    0.0
+   ]
+  }
+ }
+}

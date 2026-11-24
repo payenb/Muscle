@@ -1,0 +1,98 @@
+{
+ "case": "beam_dr_cantilever_tip_load",
+ "description": "Steel cantilever, transverse tip load, beam dynamic relaxation.",
+ "generated_with": {
+  "musclepy": "2.0.0",
+  "numpy": "2.3.4",
+  "scipy": "1.16.2",
+  "python": "3.12.7"
+ },
+ "tolerance": {
+  "rtol": 1e-05,
+  "atol_scale": 1e-06,
+  "atol_floor": 1e-09
+ },
+ "info": {
+  "converged": true,
+  "n_time_step": 337,
+  "n_ke_reset": 77
+ },
+ "results": {
+  "displacements": {
+   "shape": [
+    2,
+    6
+   ],
+   "values": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    -4.823645076946063e-06,
+    0.005382763575393373,
+    0.0,
+    0.0,
+    0.0,
+    0.0026913832272612345
+   ]
+  },
+  "reactions": {
+   "shape": [
+    2,
+    6
+   ],
+   "values": [
+    3.843710820516932e-06,
+    -999.999997634297,
+    0.0,
+    0.0,
+    0.0,
+    -2999.9951699661856,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "tension": {
+   "shape": [
+    1
+   ],
+   "values": [
+    1.7942506739624755
+   ]
+  },
+  "moment_start": {
+   "shape": [
+    1,
+    2
+   ],
+   "values": [
+    0.0,
+    -2999.9951699661856
+   ]
+  },
+  "moment_end": {
+   "shape": [
+    1,
+    2
+   ],
+   "values": [
+    0.0,
+    6.876705356262391e-07
+   ]
+  },
+  "torsion": {
+   "shape": [
+    1
+   ],
+   "values": [
+    0.0
+   ]
+  }
+ }
+}

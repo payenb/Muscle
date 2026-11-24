@@ -1,0 +1,97 @@
+{
+ "case": "beam_fem_axial_compression",
+ "description": "Steel bar in pure axial compression (no bending expected).",
+ "generated_with": {
+  "musclepy": "2.0.0",
+  "numpy": "2.3.4",
+  "scipy": "1.16.2",
+  "python": "3.12.7"
+ },
+ "tolerance": {
+  "rtol": 1e-05,
+  "atol_scale": 1e-06,
+  "atol_floor": 1e-09
+ },
+ "info": {
+  "converged": true,
+  "n_iteration": 2
+ },
+ "results": {
+  "displacements": {
+   "shape": [
+    2,
+    6
+   ],
+   "values": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    -2.4599999999999263e-05,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "reactions": {
+   "shape": [
+    2,
+    6
+   ],
+   "values": [
+    8200.000000050759,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "tension": {
+   "shape": [
+    1
+   ],
+   "values": [
+    -8200.000000050759
+   ]
+  },
+  "moment_start": {
+   "shape": [
+    1,
+    2
+   ],
+   "values": [
+    0.0,
+    0.0
+   ]
+  },
+  "moment_end": {
+   "shape": [
+    1,
+    2
+   ],
+   "values": [
+    0.0,
+    0.0
+   ]
+  },
+  "torsion": {
+   "shape": [
+    1
+   ],
+   "values": [
+    0.0
+   ]
+  }
+ }
+}

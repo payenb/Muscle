@@ -1,0 +1,95 @@
+{
+ "case": "two_bars_linear_dm",
+ "description": "Two-bar truss, linear displacement method (Feron master thesis, annex A1.1.1).",
+ "generated_with": {
+  "musclepy": "2.0.0",
+  "numpy": "2.3.4",
+  "scipy": "1.16.2",
+  "python": "3.12.7"
+ },
+ "tolerance": {
+  "rtol": 1e-05,
+  "atol_scale": 1e-06,
+  "atol_floor": 1e-09
+ },
+ "info": {},
+ "results": {
+  "tension": {
+   "shape": [
+    2
+   ],
+   "values": [
+    -70710.67811865475,
+    -70710.67811865475
+   ]
+  },
+  "coordinates": {
+   "shape": [
+    3,
+    3
+   ],
+   "values": [
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.9943431457505076,
+    2.0,
+    0.0,
+    0.0
+   ]
+  },
+  "displacements": {
+   "shape": [
+    3,
+    3
+   ],
+   "values": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    -0.005656854249492382,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "reactions": {
+   "shape": [
+    3,
+    3
+   ],
+   "values": [
+    50000.0,
+    0.0,
+    50000.0,
+    0.0,
+    0.0,
+    0.0,
+    -50000.0,
+    0.0,
+    50000.0
+   ]
+  },
+  "resisting_forces": {
+   "shape": [
+    3,
+    3
+   ],
+   "values": [
+    50000.0,
+    0.0,
+    50000.0,
+    0.0,
+    0.0,
+    -100000.0,
+    -50000.0,
+    0.0,
+    50000.0
+   ]
+  }
+ }
+}
