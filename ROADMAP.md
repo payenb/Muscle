@@ -9,7 +9,7 @@
   - nouvelle version de `musclepy` épinglée.
 - [ ] Prévenir Jonas Feron de la correction de la rigidité tangente.
 - [ ] Mettre à jour l'exemple Grasshopper du simplex, qui utilise encore les anciens GUID (voir `docs/ARCHITECTURE.md`, §4).
-- [ ] Au démarrage (« StartPython.NET »), vérifier que la version de `musclepy` chargée est celle qu'attend `Muscle2.gha`, et afficher sinon un avertissement clair.
+- [x] Au démarrage (« StartPython.NET »), vérifier que la version de `musclepy` chargée est celle qu'attend `Muscle2.gha`, et afficher sinon un avertissement clair. Fait le 26 novembre 2026 : `MusclePyVersion.Expected` et `musclepy` 2.0.1.
   - Le risque : avec une ancienne copie de `musclepy`, SRDR donne des résultats faux. Depuis le commit `edc1eee`, l'inertie est envoyée en m⁴ alors que les anciennes versions l'attendaient en mm⁴.
   - Le numéro de version ne suffit pas : il vaut toujours `2.0.0` avant et après ce changement. Il faut d'abord incrémenter la version, ou exposer un marqueur de contrat (par exemple `musclepy.UNITS = "SI"`) que le plugin vérifie.
   - Le composant propose par défaut l'environnement `muscle` (`PythonNET.cs`), qui contient aujourd'hui `musclepy` 1.1.0, la version d'origine, sans SRDR ni poutres.

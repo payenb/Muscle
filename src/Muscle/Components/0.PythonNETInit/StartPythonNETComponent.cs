@@ -176,6 +176,14 @@ namespace Muscle.Components.PythonNETInit
                 {
                     PythonNET.Launch(userConfig);
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Python.NET setup completed successfully.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"musclepy {PythonNET.LoadedMusclePyVersion ?? "(unknown version)"} loaded from {PythonNET.LoadedMusclePyPath ?? "(unknown path)"}");
+                    // An older or newer musclepy than the one this Muscle2.gha was built for may give
+                    // wrong results without any error (e.g. SRDR before/after the SI units change).
+                    string versionWarning = PythonNET.VersionWarning;
+                    if (versionWarning != null)
+                    {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, versionWarning);
+                    }
                     // AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "NumPy test passed: cos(2*pi) = 1");
                     // AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "MusclePy package found and validated.");
                     // AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "MusclePy test_script.py successfull.");

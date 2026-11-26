@@ -150,6 +150,15 @@ namespace MuscleApp.PythonNETInit
         }
         public static bool IsInitialized { get { return PythonNETManager.IsInitialized; } }
 
+        /// <summary>musclepy.__version__ of the loaded package, null if Python is not started.</summary>
+        public static string? LoadedMusclePyVersion { get { return PythonNETManager.LoadedMusclePyVersion; } }
+
+        /// <summary>musclepy.__file__ of the loaded package, null if Python is not started.</summary>
+        public static string? LoadedMusclePyPath { get { return PythonNETManager.LoadedMusclePyPath; } }
+
+        /// <summary>Warning if the loaded musclepy is not the version this build expects, null otherwise.</summary>
+        public static string? VersionWarning { get { return PythonNETManager.VersionWarning; } }
+
         public static void ShutDown()
         {
             try

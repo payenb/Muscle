@@ -28,7 +28,7 @@ shown to the user (kN, MPa, mm...) is done once, by the Grasshopper components.
 """
 
 # Define version first
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 # Import subpackages 
 from . import femodel

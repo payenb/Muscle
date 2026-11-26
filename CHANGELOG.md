@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - Muscle 2.0 (branch `packaging`)
 
+musclepy version 2.0.1 (was 2.0.0 before the SI units change, so that the plugin can tell the two
+apart).
+
 ### Fixed
 - **Linear and nonlinear displacement methods crashed with numpy >= 2.5** (`float()` of a
   1-element array in `linear_dm._post_process`). DeprecationWarnings raised inside musclepy now
@@ -38,6 +41,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   MPa, mm... are done by the Grasshopper components only.
 
 ### Added
+- **Version check at startup**: StartPython.NET shows which musclepy is loaded (version and path)
+  and warns when it is not the version this Muscle2.gha expects (`MusclePyVersion.Expected` in
+  MuscleCore). A stale plugin or package otherwise gives wrong results silently: an old Muscle2.gha
+  (inertia sent in mm⁴) with musclepy 2.0.1 (inertia in m⁴) made SRDR stop after one outer
+  iteration with the nominal stiffness. `tests/MusclePyTests/test_version.py` keeps the package,
+  `pyproject.toml` and the C# constant in step.
+- `tools/install-grasshopper.ps1`: builds and copies Muscle2.gha, MuscleApp.dll and MuscleCore.dll
+  to `%APPDATA%\Grasshopper\Libraries\Muscle 2.0`; refuses while Rhino is open.
 - `main_tangent_stiffness_stability` and `PyResultsStability` (`musclepy.solvers.stability`):
   stable / critical / unstable from the smallest eigenvalue of the tangent stiffness, with its mode.
 - `main_prestress_stability` (`musclepy.solvers.stability`): Pellegrino-Calladine test. The

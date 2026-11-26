@@ -52,6 +52,20 @@ namespace MuscleCore.PythonNETInit
         public static readonly string MusclePy = "musclepy";
         public static bool IsInitialized { get; private set; } = false;
 
+        /// <summary>musclepy.__version__ of the package loaded at launch (null if Python is not started).</summary>
+        public static string? LoadedMusclePyVersion { get; private set; } = null;
+
+        /// <summary>musclepy.__file__ of the package loaded at launch (null if Python is not started).</summary>
+        public static string? LoadedMusclePyPath { get; private set; } = null;
+
+        /// <summary>
+        /// Warning if the loaded musclepy is not the version this build expects (see MusclePyVersion),
+        /// null if it is, or if Python is not started.
+        /// </summary>
+        public static string? VersionWarning => IsInitialized
+            ? MusclePyVersion.Mismatch(LoadedMusclePyVersion, LoadedMusclePyPath, _config?.CondaEnvName)
+            : null;
+
         private static bool UserMode { get; set; } = false;
 
         private static PythonNETConfig _config = null;
@@ -200,6 +214,8 @@ namespace MuscleCore.PythonNETInit
         private static bool KillInitialization()
         {
             PythonEngine.Shutdown();
+            LoadedMusclePyVersion = null;
+            LoadedMusclePyPath = null;
             Environment.SetEnvironmentVariable("PYTHONHOME", string.Empty, EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("PYTHONPATH", string.Empty, EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", string.Empty, EnvironmentVariableTarget.Process);
@@ -221,6 +237,39 @@ namespace MuscleCore.PythonNETInit
                                 
             // Test MusclePy test script
             TestMusclePy();
+
+            // Record which musclepy is loaded, to compare with the version this build expects
+            ReadMusclePyVersion();
+        }
+
+        /// <summary>
+        /// Reads musclepy.__version__ and musclepy.__file__. Does not throw: a missing attribute
+        /// leaves the value null, which VersionWarning reports as an unknown version.
+        /// </summary>
+        private static void ReadMusclePyVersion()
+        {
+            LoadedMusclePyVersion = null;
+            LoadedMusclePyPath = null;
+            var m_threadState = PythonEngine.BeginAllowThreads();
+            try
+            {
+                using (Py.GIL())
+                {
+                    PyObject musclepy = Py.Import(MusclePy);
+                    if (musclepy.HasAttr("__version__"))
+                        LoadedMusclePyVersion = musclepy.GetAttr("__version__").As<string>();
+                    if (musclepy.HasAttr("__file__"))
+                        LoadedMusclePyPath = musclepy.GetAttr("__file__").As<string>();
+                }
+            }
+            catch (Exception)
+            {
+                // leave the values null: reported as an unknown version
+            }
+            finally
+            {
+                PythonEngine.EndAllowThreads(m_threadState);
+            }
         }
                 
 
