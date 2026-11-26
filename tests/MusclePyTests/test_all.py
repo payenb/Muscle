@@ -50,6 +50,7 @@ from MusclePyTests.solvers.dr.test_dr_3complexcables import TestDR_3ComplexCable
 from MusclePyTests.solvers.dr.test_dr_simplex import TestDR_Simplex
 # Import Dynamic Modal Analysis test module
 from MusclePyTests.solvers.dynamic.test_dynamic_simplex import TestDynamicSimplex
+from MusclePyTests.solvers.dynamic.test_dynamic_masses import TestDynamicMasses
 # Import Stiffness-Reduction Dynamic Relaxation test modules
 from MusclePyTests.solvers.srdr.test_formulas_srdr import TestFormulasSRDR
 from MusclePyTests.solvers.srdr.test_srdr_simplex import TestSRDR_Simplex
@@ -85,6 +86,7 @@ def create_test_suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestDR_Simplex))
     # Add Dynamic Modal Analysis test classes
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestDynamicSimplex))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestDynamicMasses))
     # Add Stiffness-Reduction Dynamic Relaxation test classes
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestFormulasSRDR))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestSRDR_Simplex))

@@ -52,21 +52,29 @@ namespace MuscleCore.Solvers
 
             // following code is inspired from https://github.com/pythonnet/pythonnet/wiki/Threading
             var m_threadState = PythonEngine.BeginAllowThreads();
-            using (Py.GIL())
+            // Always restore the thread state, also when Python raises: otherwise the next Python
+            // call runs without a thread state and aborts the whole process (Rhino included).
+            try
             {
-                try
+                using (Py.GIL())
                 {
-                    dynamic musclepy = Py.Import(pythonPackage);
-                    dynamic mainFunction = musclepy.test_script_main;
-                    dynamic pyResult = mainFunction(str0, str1);
-                    result = (string)pyResult;
-                }
-                catch (Exception)
-                {
-                    throw;
+                    try
+                    {
+                        dynamic musclepy = Py.Import(pythonPackage);
+                        dynamic mainFunction = musclepy.test_script_main;
+                        dynamic pyResult = mainFunction(str0, str1);
+                        result = (string)pyResult;
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
                 }
             }
-            PythonEngine.EndAllowThreads(m_threadState);
+            finally
+            {
+                PythonEngine.EndAllowThreads(m_threadState);
+            }
 
             return result;
         }

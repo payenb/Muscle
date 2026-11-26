@@ -69,28 +69,36 @@ namespace MuscleCore.Solvers
             CoreResultsDynamic? dynamicResults = null;
 
             var m_threadState = PythonEngine.BeginAllowThreads();
-            using (Py.GIL())
+            // Always restore the thread state, also when Python raises: otherwise the next Python
+            // call runs without a thread state and aborts the whole process (Rhino included).
+            try
             {
-                try
+                using (Py.GIL())
                 {
-                    PyObject pyStructure = structure.ToPython();
-                    dynamic musclepy = Py.Import("musclepy");
-                    dynamic solve = musclepy.main_dynamic_modal_analysis;
-                    dynamic pydynamicResults = solve(
-                        pyStructure,
-                        pointMasses, 
-                        elementMasses, 
-                        elementMassesOption, 
-                        nModes
-                    );
-                    dynamicResults = pydynamicResults.As<CoreResultsDynamic>();
-                }
-                catch (Exception)
-                {
-                    throw;
+                    try
+                    {
+                        PyObject pyStructure = structure.ToPython();
+                        dynamic musclepy = Py.Import("musclepy");
+                        dynamic solve = musclepy.main_dynamic_modal_analysis;
+                        dynamic pydynamicResults = solve(
+                            pyStructure,
+                            pointMasses, 
+                            elementMasses, 
+                            elementMassesOption, 
+                            nModes
+                        );
+                        dynamicResults = pydynamicResults.As<CoreResultsDynamic>();
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
                 }
             }
-            PythonEngine.EndAllowThreads(m_threadState);
+            finally
+            {
+                PythonEngine.EndAllowThreads(m_threadState);
+            }
 
             return dynamicResults;
         }

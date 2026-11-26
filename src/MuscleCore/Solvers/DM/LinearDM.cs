@@ -58,20 +58,28 @@ namespace MuscleCore.Solvers
             try
             {
                 var m_threadState = PythonEngine.BeginAllowThreads();
-                using (Py.GIL())
+                // Always restore the thread state, also when Python raises: otherwise the next Python
+                // call runs without a thread state and aborts the whole process (Rhino included).
+                try
                 {
-                    PyObject pyInitial = coreInitial.ToPython();
+                    using (Py.GIL())
+                    {
+                        PyObject pyInitial = coreInitial.ToPython();
 
-                    dynamic musclepy = Py.Import("musclepy");
-                    dynamic solve = musclepy.main_linear_displacement_method;
-                    dynamic pyResult = solve(
-                        pyInitial,
-                        loadsIncrement,
-                        freeLengthVariation
-                    );
-                    coreResult = pyResult.As<CoreTruss>();
+                        dynamic musclepy = Py.Import("musclepy");
+                        dynamic solve = musclepy.main_linear_displacement_method;
+                        dynamic pyResult = solve(
+                            pyInitial,
+                            loadsIncrement,
+                            freeLengthVariation
+                        );
+                        coreResult = pyResult.As<CoreTruss>();
+                    }
                 }
-                PythonEngine.EndAllowThreads(m_threadState);
+                finally
+                {
+                    PythonEngine.EndAllowThreads(m_threadState);
+                }
             }
             catch (Exception)
             {

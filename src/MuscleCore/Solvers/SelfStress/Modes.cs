@@ -60,26 +60,34 @@ namespace MuscleCore.Solvers
             double[,]? localModes = null;
 
             var m_threadState = PythonEngine.BeginAllowThreads();
-            using (Py.GIL())
+            // Always restore the thread state, also when Python raises: otherwise the next Python
+            // call runs without a thread state and aborts the whole process (Rhino included).
+            try
             {
-                try
+                using (Py.GIL())
                 {
-                    PyObject pyStructure = structure.ToPython();
-                    dynamic musclepy = Py.Import(pythonPackage);
-                    dynamic localize = musclepy.localize_self_stress_modes;
-                    dynamic pyLocalModes = localize(
-                        pyStructure,
-                        Vs_T,
-                        atol
-                    );
-                    localModes = DecoderHelper.As2dArray(pyLocalModes);
-                }
-                catch (Exception)
-                {
-                    throw;
+                    try
+                    {
+                        PyObject pyStructure = structure.ToPython();
+                        dynamic musclepy = Py.Import(pythonPackage);
+                        dynamic localize = musclepy.localize_self_stress_modes;
+                        dynamic pyLocalModes = localize(
+                            pyStructure,
+                            Vs_T,
+                            atol
+                        );
+                        localModes = DecoderHelper.As2dArray(pyLocalModes);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
                 }
             }
-            PythonEngine.EndAllowThreads(m_threadState);
+            finally
+            {
+                PythonEngine.EndAllowThreads(m_threadState);
+            }
 
             return localModes;
         }

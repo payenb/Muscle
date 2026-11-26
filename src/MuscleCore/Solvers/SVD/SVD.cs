@@ -57,25 +57,33 @@ namespace MuscleCore.Solvers
             CoreResultsSVD? svdResults = null;
 
             var m_threadState = PythonEngine.BeginAllowThreads();
-            using (Py.GIL())
+            // Always restore the thread state, also when Python raises: otherwise the next Python
+            // call runs without a thread state and aborts the whole process (Rhino included).
+            try
             {
-                try
+                using (Py.GIL())
                 {
-                    PyObject pyStructure = structure.ToPython();
-                    dynamic musclepy = Py.Import(pythonPackage);
-                    dynamic solve = musclepy.main_singular_value_decomposition;
-                    dynamic pysvdResults = solve(
-                        pyStructure,
-                        rtol
-                    );
-                    svdResults = pysvdResults.As<CoreResultsSVD>();
-                }
-                catch (Exception)
-                {
-                    throw;
+                    try
+                    {
+                        PyObject pyStructure = structure.ToPython();
+                        dynamic musclepy = Py.Import(pythonPackage);
+                        dynamic solve = musclepy.main_singular_value_decomposition;
+                        dynamic pysvdResults = solve(
+                            pyStructure,
+                            rtol
+                        );
+                        svdResults = pysvdResults.As<CoreResultsSVD>();
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
                 }
             }
-            PythonEngine.EndAllowThreads(m_threadState);
+            finally
+            {
+                PythonEngine.EndAllowThreads(m_threadState);
+            }
 
             return svdResults;
         }

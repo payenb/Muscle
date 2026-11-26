@@ -265,5 +265,37 @@ namespace MuscleCoreTests.Solvers
             // Check natural frequency
             Assert.AreEqual(2.346, dynamicResults.Frequencies[0], 0.001, "First natural frequency should be approximately 2.346 Hz");
         }
+
+        [TestMethod]
+        public void Test_MasslessFreeDof_FailsCleanlyAndPythonKeepsWorking()
+        {
+            // Masses on the 3 top nodes only: nodes 0 (free in y) and 2 (free in x and y) have free
+            // directions without mass, so the mass matrix is singular and the analysis must fail.
+            // In Grasshopper this used to close Rhino: the failure left the GIL released, and the next
+            // Python call aborted the process. The error must be a normal exception, name the nodes,
+            // and Python must keep working afterwards.
+            double[] topOnly = new double[18];
+            for (int i = 9; i < 18; i++) topOnly[i] = 3.06;
+
+            for (int attempt = 0; attempt < 2; attempt++)
+            {
+                string message = null;
+                try
+                {
+                    DynamicModalAnalysis.Solve(_formFoundStructure, topOnly, new double[0], elementMassesOption: 0, nModes: 0);
+                }
+                catch (System.Exception e)
+                {
+                    message = e.ToString();
+                }
+                Assert.IsNotNull(message, "a structure with massless free DOF must raise an error");
+                StringAssert.Contains(message, "node 0");
+                StringAssert.Contains(message, "node 2");
+            }
+
+            // Python still works: a valid analysis right after the failures
+            var results = DynamicModalAnalysis.Solve(_formFoundStructure, _pointMasses, _elementMasses, elementMassesOption: 2, nModes: 0);
+            Assert.AreEqual(2.346, results.Frequencies[0], 0.001);
+        }
     }
 }

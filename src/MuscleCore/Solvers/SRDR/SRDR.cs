@@ -52,41 +52,49 @@ namespace MuscleCore.Solvers
             try
             {
                 var m_threadState = PythonEngine.BeginAllowThreads();
-                using (Py.GIL())
+                // Always restore the thread state, also when Python raises: otherwise the next Python
+                // call runs without a thread state and aborts the whole process (Rhino included).
+                try
                 {
-                    PyObject pyInitial = coreInitial.ToPython();
-                    PyObject pyDrConfig = drConfig.ToPython();
-                    PyObject pySrdrConfig = srdrConfig.ToPython();
+                    using (Py.GIL())
+                    {
+                        PyObject pyInitial = coreInitial.ToPython();
+                        PyObject pyDrConfig = drConfig.ToPython();
+                        PyObject pySrdrConfig = srdrConfig.ToPython();
 
-                    dynamic musclepy = Py.Import("musclepy");
-                    dynamic solve = musclepy.main_stiffness_reduction_dr;
-                    dynamic pyResult = solve(
-                        structure: pyInitial,
-                        loads_increment: loadsIncrement,
-                        free_length_variation: freeLengthVariation,
-                        dr_config: pyDrConfig,
-                        srdr_config: pySrdrConfig,
-                        inertia: inertia,
-                        imperfection: imperfection
-                    );
+                        dynamic musclepy = Py.Import("musclepy");
+                        dynamic solve = musclepy.main_stiffness_reduction_dr;
+                        dynamic pyResult = solve(
+                            structure: pyInitial,
+                            loads_increment: loadsIncrement,
+                            free_length_variation: freeLengthVariation,
+                            dr_config: pyDrConfig,
+                            srdr_config: pySrdrConfig,
+                            inertia: inertia,
+                            imperfection: imperfection
+                        );
 
-                    coreResult = pyResult.As<CoreTruss>();
+                        coreResult = pyResult.As<CoreTruss>();
 
-                    // Check if structure is in equilibrium (same tolerances the inner DR runs used)
-                    dynamic dynamicPyDrConfig = pyDrConfig.As<dynamic>();
-                    dynamic rtol = dynamicPyDrConfig.zero_residual_rtol;
-                    dynamic atol = dynamicPyDrConfig.zero_residual_atol;
-                    coreResult.IsInEquilibrium = pyResult.is_in_equilibrium(rtol, atol).As<bool>();
+                        // Check if structure is in equilibrium (same tolerances the inner DR runs used)
+                        dynamic dynamicPyDrConfig = pyDrConfig.As<dynamic>();
+                        dynamic rtol = dynamicPyDrConfig.zero_residual_rtol;
+                        dynamic atol = dynamicPyDrConfig.zero_residual_atol;
+                        coreResult.IsInEquilibrium = pyResult.is_in_equilibrium(rtol, atol).As<bool>();
 
-                    // Update configuration with values from the Python config.
-                    // The Python function updates the srdr_config object in-place. Note: dr_config
-                    // is NOT mutated here (a fresh copy is used internally for each inner DR run),
-                    // so its n_time_step/n_ke_reset counters are not meaningful outputs for SRDR.
-                    dynamic dynamicPySrdrConfig = pySrdrConfig.As<dynamic>();
-                    srdrConfig.NOuterIterations = dynamicPySrdrConfig.n_outer_iterations.As<int>();
-                    srdrConfig.Converged = dynamicPySrdrConfig.converged.As<bool>();
+                        // Update configuration with values from the Python config.
+                        // The Python function updates the srdr_config object in-place. Note: dr_config
+                        // is NOT mutated here (a fresh copy is used internally for each inner DR run),
+                        // so its n_time_step/n_ke_reset counters are not meaningful outputs for SRDR.
+                        dynamic dynamicPySrdrConfig = pySrdrConfig.As<dynamic>();
+                        srdrConfig.NOuterIterations = dynamicPySrdrConfig.n_outer_iterations.As<int>();
+                        srdrConfig.Converged = dynamicPySrdrConfig.converged.As<bool>();
+                    }
                 }
-                PythonEngine.EndAllowThreads(m_threadState);
+                finally
+                {
+                    PythonEngine.EndAllowThreads(m_threadState);
+                }
             }
             catch (Exception)
             {

@@ -44,29 +44,37 @@ namespace MuscleCore.Solvers
             try
             {
                 var m_threadState = PythonEngine.BeginAllowThreads();
-                using (Py.GIL())
+                // Always restore the thread state, also when Python raises: otherwise the next Python
+                // call runs without a thread state and aborts the whole process (Rhino included).
+                try
                 {
-                    PyObject pyElementsObj = structureInitial.Elements.ToPython();
-                    dynamic pyElements = pyElementsObj;
-                    dynamic pyNodes = pyElements.nodes;
+                    using (Py.GIL())
+                    {
+                        PyObject pyElementsObj = structureInitial.Elements.ToPython();
+                        dynamic pyElements = pyElementsObj;
+                        dynamic pyNodes = pyElements.nodes;
 
-                    PyObject pyConfigObj = config.ToPython();
-                    dynamic pyConfig = pyConfigObj;
+                        PyObject pyConfigObj = config.ToPython();
+                        dynamic pyConfig = pyConfigObj;
 
-                    dynamic musclepy = Py.Import("musclepy");
-                    musclepy.main_beam_dr(nodes: pyNodes, elements: pyElements, config: pyConfig);
+                        dynamic musclepy = Py.Import("musclepy");
+                        musclepy.main_beam_dr(nodes: pyNodes, elements: pyElements, config: pyConfig);
 
-                    CoreBeamElements coreElements = pyElementsObj.As<CoreBeamElements>();
-                    CoreBeamNodes coreNodes = coreElements.Nodes;
+                        CoreBeamElements coreElements = pyElementsObj.As<CoreBeamElements>();
+                        CoreBeamNodes coreNodes = coreElements.Nodes;
 
-                    result = new CoreBeamStructure(coreNodes, coreElements, isInEquilibrium: (bool)pyConfig.converged);
+                        result = new CoreBeamStructure(coreNodes, coreElements, isInEquilibrium: (bool)pyConfig.converged);
 
-                    config.Converged = (bool)pyConfig.converged;
-                    config.NTimeStep = (int)pyConfig.n_time_step;
-                    config.NKEReset = (int)pyConfig.n_ke_reset;
-                    config.Residual = (double)pyConfig.residual;
+                        config.Converged = (bool)pyConfig.converged;
+                        config.NTimeStep = (int)pyConfig.n_time_step;
+                        config.NKEReset = (int)pyConfig.n_ke_reset;
+                        config.Residual = (double)pyConfig.residual;
+                    }
                 }
-                PythonEngine.EndAllowThreads(m_threadState);
+                finally
+                {
+                    PythonEngine.EndAllowThreads(m_threadState);
+                }
             }
             catch (Exception)
             {

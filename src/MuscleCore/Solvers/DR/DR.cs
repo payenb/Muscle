@@ -58,34 +58,42 @@ namespace MuscleCore.Solvers
             try
             {
                 var m_threadState = PythonEngine.BeginAllowThreads();
-                using (Py.GIL())
+                // Always restore the thread state, also when Python raises: otherwise the next Python
+                // call runs without a thread state and aborts the whole process (Rhino included).
+                try
                 {
-                    PyObject pyInitial = coreInitial.ToPython();
-                    PyObject pyConfig = config.ToPython();
+                    using (Py.GIL())
+                    {
+                        PyObject pyInitial = coreInitial.ToPython();
+                        PyObject pyConfig = config.ToPython();
                     
-                    dynamic musclepy = Py.Import("musclepy");
-                    dynamic solve = musclepy.main_dynamic_relaxation;
-                    dynamic pyResult = solve(
-                        pyInitial,
-                        loadsIncrement,
-                        freeLengthVariation,
-                        pyConfig
-                    );
+                        dynamic musclepy = Py.Import("musclepy");
+                        dynamic solve = musclepy.main_dynamic_relaxation;
+                        dynamic pyResult = solve(
+                            pyInitial,
+                            loadsIncrement,
+                            freeLengthVariation,
+                            pyConfig
+                        );
                     
-                    coreResult = pyResult.As<CoreTruss>();
+                        coreResult = pyResult.As<CoreTruss>();
 
-                    // Check if structure is in equilibrium
-                    dynamic dynamicPyConfig = pyConfig.As<dynamic>();
-                    dynamic rtol = dynamicPyConfig.zero_residual_rtol;
-                    dynamic atol = dynamicPyConfig.zero_residual_atol;
-                    coreResult.IsInEquilibrium = pyResult.is_in_equilibrium(rtol, atol).As<bool>();
+                        // Check if structure is in equilibrium
+                        dynamic dynamicPyConfig = pyConfig.As<dynamic>();
+                        dynamic rtol = dynamicPyConfig.zero_residual_rtol;
+                        dynamic atol = dynamicPyConfig.zero_residual_atol;
+                        coreResult.IsInEquilibrium = pyResult.is_in_equilibrium(rtol, atol).As<bool>();
 
-                    // Update configuration with values from the Python config
-                    // The Python function updates the config object in-place
-                    config.NTimeStep = dynamicPyConfig.n_time_step.As<int>();
-                    config.NKEReset = dynamicPyConfig.n_ke_reset.As<int>();
+                        // Update configuration with values from the Python config
+                        // The Python function updates the config object in-place
+                        config.NTimeStep = dynamicPyConfig.n_time_step.As<int>();
+                        config.NKEReset = dynamicPyConfig.n_ke_reset.As<int>();
+                    }
                 }
-                PythonEngine.EndAllowThreads(m_threadState);
+                finally
+                {
+                    PythonEngine.EndAllowThreads(m_threadState);
+                }
             }
             catch (Exception)
             {

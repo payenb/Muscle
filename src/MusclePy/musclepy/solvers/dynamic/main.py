@@ -84,6 +84,20 @@ def main_dynamic_modal_analysis(structure: PyTruss, point_masses: np.ndarray = N
     K = K_3n[np.ix_(dof,dof)]
     M = M_3n[np.ix_(dof,dof)]
 
+    # Every free DOF needs a mass: otherwise M is singular and the eigenvalue problem has no solution.
+    # Name the nodes concerned rather than letting the eigensolver fail with a cryptic message.
+    massless = np.flatnonzero(np.diag(M) <= 0)
+    if massless.size > 0:
+        global_indices = np.flatnonzero(dof)[massless]
+        by_node = {}
+        for g in global_indices:
+            by_node.setdefault(int(g) // 3, []).append("xyz"[int(g) % 3])
+        listing = ", ".join(f"node {n} ({', '.join(d)})" for n, d in sorted(by_node.items()))
+        raise ValueError(f"No mass on free degrees of freedom: {listing}. Every node that can move needs a "
+                         "mass in each direction it can move (supports are often free in some directions): "
+                         "add a point mass on these nodes, or element masses (lumped or consistent option) "
+                         "on the elements connected to them.")
+
     try:
         # Solve the generalized eigenvalue problem: K·φ = ω²·M·φ
         eigenvalues, eigenvectors = sp.linalg.eigh(K, M, type=1, subset_by_index=[0,n_modes-1], driver="gvx")

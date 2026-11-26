@@ -11,6 +11,17 @@ musclepy version 2.0.1 (was 2.0.0 before the SI units change, so that the plugin
 apart).
 
 ### Fixed
+- **Rhino closed when a solver raised a Python error.** The C# solvers released the GIL
+  (`BeginAllowThreads`) but restored it only on success; after a Python exception the next Python call
+  ran without a thread state and aborted the process ("Fatal Python error: PyEval_SaveThread: NULL
+  tstate"). All ten MuscleCore solvers now restore it in a `finally` block. Seen with the modal
+  analysis when a free node had no mass.
+- **Modal analysis: a free DOF without mass** now raises a clear error naming the nodes and
+  directions (supports are often free in some directions), instead of a cryptic eigensolver message.
+- **Modal analysis in Grasshopper: element masses** are computed from the elements (free length ×
+  area × specific mass) when the "Element Mass" input is empty, as its description said. They were
+  zero, so the lumped and consistent options silently ignored the element masses. Existing files
+  with an empty input and option 1 or 2 now include the element masses (lower frequencies).
 - **Linear and nonlinear displacement methods crashed with numpy >= 2.5** (`float()` of a
   1-element array in `linear_dm._post_process`). DeprecationWarnings raised inside musclepy now
   fail the tests.
