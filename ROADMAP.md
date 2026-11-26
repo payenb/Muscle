@@ -11,8 +11,10 @@
 - [ ] Mettre à jour l'exemple Grasshopper du simplex, qui utilise encore les anciens GUID (voir `docs/ARCHITECTURE.md`, §4).
 - [x] Au démarrage (« StartPython.NET »), vérifier que la version de `musclepy` chargée est celle qu'attend `Muscle2.gha`, et afficher sinon un avertissement clair. Fait le 26 novembre 2026 : `MusclePyVersion.Expected` et `musclepy` 2.0.1.
   - Le risque : avec une ancienne copie de `musclepy`, SRDR donne des résultats faux. Depuis le commit `edc1eee`, l'inertie est envoyée en m⁴ alors que les anciennes versions l'attendaient en mm⁴.
-  - Le numéro de version ne suffit pas : il vaut toujours `2.0.0` avant et après ce changement. Il faut d'abord incrémenter la version, ou exposer un marqueur de contrat (par exemple `musclepy.UNITS = "SI"`) que le plugin vérifie.
-  - Le composant propose par défaut l'environnement `muscle` (`PythonNET.cs`), qui contient aujourd'hui `musclepy` 1.1.0, la version d'origine, sans SRDR ni poutres.
+  - La version est passée de `2.0.0` à `2.0.1` pour distinguer les copies d'avant ce changement. À chaque modification de l'échange entre C# et Python, incrémenter `musclepy.__version__`, `pyproject.toml` et `MusclePyVersion.Expected` ensemble (`tests/MusclePyTests/test_version.py` le vérifie).
+  - Le composant propose par défaut l'environnement `muscle` (`PythonNET.cs`). Il contenait `musclepy` 1.1.0, la version d'origine ; Basile l'a supprimé le 26 novembre 2026. Il faut donc saisir `muscle-dev`.
+- [ ] Publication : Muscle 2.0 a de nouveaux GUID et s'installe à côté du Muscle d'origine au lieu de le remplacer. À intégrer dans la décision avec Jonas Feron et Pierre Latteur : mise à jour de la page food4rhino existante, ou page séparée.
+- [ ] Icônes Grasshopper : revoir les icônes des composants avant la publication. Cohérence visuelle entre les composants d'origine et les nouveaux, icônes manquantes, lisibilité en petit format.
 
 ## 2. Ajouts pour la thèse
 
